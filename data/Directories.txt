@@ -1,0 +1,29 @@
+PLAKA DEĞİŞİKLİĞİ İŞLEM REHBERİ
+
+Bu doküman, sistem üzerinde araçlara ait plaka bilgilerinin değiştirilmesi sürecinde izlenecek adımları ve hangi koşullarda onay gerekip gerekmediğini açıklamaktadır.
+
+1. CİHAZIN ESKİ ARAÇTAN SÖKÜLMESİ:
+   ADIM 1: Yönetim paneline giriş yapınız.
+   ADIM 2: Cihaz Yönetimi > Araçlar > İşlemler menüsüne gidiniz.
+   ADIM 3: Eski plakayı filtreleyiniz.
+   ADIM 4: “Cihaz Sök” işlemini uygulayınız.
+
+2. YENİ ARAÇ (PLAKA) KAYDININ YAPILMASI:
+   ADIM 1: Yeni plaka sistemde kayıtlı değilse, Cihaz Yönetimi > Araçlar > Araç Ekle adımlarını takip ediniz.
+   ADIM 2: Yeni plakaya ait araç bilgilerini girerek kayıt oluşturunuz.
+
+3. CİHAZIN YENİ ARAÇA (PLAKAYA) TAKILMASI:
+   ADIM 1: Yönetim paneline giriş yapınız.
+   ADIM 2: Cihaz Yönetimi > Araçlar > İşlemler menüsüne gidiniz.
+   ADIM 3: Yeni plakayı filtreleyiniz.
+   ADIM 4: “Cihaz Tak” işlemini gerçekleştirin.
+
+ONAY GEREKTİRMEYEN DURUMLAR:
+    - Araç plakası boşsa
+    - Plaka, cihazın IMEI numarası ile eşleşiyorsa
+    - Kullanıcının yetkisi varsa
+    - Sadece büyük/küçük harf farkı varsa
+    - Plakada boşluk eklenmiş veya silinmişse
+
+ONAY GEREKTİREN DURUM:
+    - Mevcut plakada sistemsel değişiklik yapılmışsa (örneğin: sökülme tarihi, cihaz geçmişi)

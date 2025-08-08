@@ -1,0 +1,26 @@
+medical_rag_assistant/
+│
+├── .env                     # Ortam değişkenleri (API key vb.)
+├── main.py                  # Ana uygulama akışı
+├── config.py                # Ortak ayarlar (model, veritabanı vb.)
+├── requirements.txt         # Gerekli Python kütüphaneleri
+│
+├── /data/                   # Ham veri dosyaları (PDF, txt vb.)
+│   └── sample_docs/
+│
+├── /graph/                  # Graph RAG ile ilgili işlemler
+│   ├── builder.py           # Graph oluşturucu (LLM ile node extraction)
+│   ├── chain.py             # GraphCypherQAChain tanımı
+│   └── schema.json          # Neo4j şeması (isteğe bağlı)
+│
+├── /vector/                 # Vector RAG işlemleri
+│   ├── loader.py            # Belge yükleyici ve splitter
+│   ├── embedder.py          # Embedding işlemi
+│   ├── retriever.py         # Vector retriever
+│   └── eval.py              # RAGAS değerlendirmesi
+│
+├── /prompts/               # Özel prompt dosyaları
+│   └── cypher_prompt.txt
+│
+└── /utils/                 # Yardımcı fonksiyonlar
+    └── helpers.py

@@ -1,0 +1,17 @@
+langchain
+langchain-community
+openai
+chromadb
+tiktoken
+pypdf
+faiss-cpu
+unstructured
+dotenv
+neo4j
+networkx
+ragas
+pandas
+streamlit
+gradio
+flask
+flask-socketio
