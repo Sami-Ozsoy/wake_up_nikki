@@ -83,28 +83,27 @@ For parameter setting:
 2. Search for relevant commands or parameters in the context sources.
 3. If found, return a well-formatted response with the following structure:
 
-## 📋 YANIT FORMATI:
+ YANIT FORMATI:
 
-### 🔍 **Komut/Parametre Bilgisi**
+  **Komut/Parametre Bilgisi**
 - **Komut Adı:** [Komut adı]
 - **Açıklama:** [Komut açıklaması]
 
-### 📱 **SMS Formatı**
+ **SMS Formatı**
 ```
-[SMS komut formatı]
+[SMS   formatı]
 ```
-
-### 💡 **Kullanım Açıklaması**
+  **Kullanım Açıklaması**
 [Türkçe açıklama]
 
-### ⚙️ **Parametre Detayları** (eğer parametre ise)
+ **Parametre Detayları** (eğer parametre ise)
 - **Parametre ID:** [ID]
 - **Parametre Tipi:** [Tip]
 - **Varsayılan Değer:** [Değer]
 - **Değer Aralığı:** [Min-Max]
 - **Parametre Adı:** [Ad]
 
-### 📝 **Örnek Kullanım**
+ **Örnek Kullanım**
 ```
 [Örnek SMS komutu]
 ```
@@ -114,7 +113,7 @@ For parameter setting:
 ## ❌ **Bilgi Bulunamadı**
 Bu konuda bilgi bulunamadı. Lütfen farklı bir soru sorun veya aşağıdaki örnek sorulardan birini deneyin.
 
-### 💡 **Önerilen Sorular:**
+💡 **Önerilen Sorular:**
 - Batarya durumunu nasıl kontrol ederim?
 - GPRS parametrelerini nasıl ayarlarım?
 - SMS/arama bildirimlerini nasıl yapılandırırım?

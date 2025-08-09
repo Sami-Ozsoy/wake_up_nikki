@@ -363,12 +363,6 @@
 <body>
     <div class="chat-container">
         <div class="sidebar">
-            <div class="sidebar-header">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <img src="{{ url_for('static', filename='niki.png') }}" alt="Niki Logo" style="width: 32px; height: 32px; border-radius: 50%;">
-                    <h3>Niki</h3>
-                </div>
-            </div>
             
             <button class="new-chat-btn" onclick="clearHistory()">
                 <i class="fas fa-plus"></i> Yeni Sohbet
@@ -395,14 +389,11 @@
             
             <div class="messages-container" id="chatMessages">
                 <div class="message assistant">
-                    <div class="message-avatar">
-                        <img src="{{ url_for('static', filename='niki.png') }}" alt="Niki" style="width: 100%; height: 100%; border-radius: 4px; object-fit: cover;">
-                    </div>
                     <div class="message-content">
-                        <h4>👋 Merhaba!</h4>
+                        <h4>Merhaba!</h4>
                         <p>Ben Niki, FM130 cihazı komutları konusunda size yardımcı olabilirim. 
                         Hangi konuda bilgi almak istiyorsunuz?</p>
-                        <p><strong>💡 Örnek:</strong> "Batarya durumunu nasıl kontrol ederim?"</p>
+                        <p><strong>Örnek:</strong> "Batarya durumunu nasıl kontrol ederim?"</p>
                     </div>
                 </div>
             </div>
@@ -554,7 +545,7 @@
                     document.getElementById('chatMessages').innerHTML = `
                         <div class="message assistant">
                             <div class="message-content">
-                                <h4>👋 Merhaba!</h4>
+                                <h4>Merhaba!</h4>
                                 <p>Sohbet geçmişi temizlendi. Size nasıl yardımcı olabilirim?</p>
                             </div>
                         </div>

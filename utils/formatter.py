@@ -3,30 +3,13 @@ from typing import Dict, Any
 
 def format_llm_response(response: str) -> str:
     """
-    LLM yanıtını daha düzgün formatlar
+    LLM yanıtını basit şekilde formatlar
     """
     if not response:
         return "❌ Yanıt alınamadı."
     
-    # Markdown formatını iyileştir
+    # Sadece temel temizlik
     formatted = response.strip()
-    
-    # Başlıkları düzelt
-    formatted = re.sub(r'^##\s*', '## 📋 ', formatted, flags=re.MULTILINE)
-    formatted = re.sub(r'^###\s*🔍\s*', '### 🔍 ', formatted, flags=re.MULTILINE)
-    formatted = re.sub(r'^###\s*📱\s*', '### 📱 ', formatted, flags=re.MULTILINE)
-    formatted = re.sub(r'^###\s*💡\s*', '### 💡 ', formatted, flags=re.MULTILINE)
-    formatted = re.sub(r'^###\s*⚙️\s*', '### ⚙️ ', formatted, flags=re.MULTILINE)
-    formatted = re.sub(r'^###\s*📝\s*', '### 📝 ', formatted, flags=re.MULTILINE)
-    
-    # Kod bloklarını iyileştir
-    formatted = re.sub(r'```(\w+)?\n', r'```\1\n', formatted)
-    
-    # Liste öğelerini düzelt
-    formatted = re.sub(r'^\s*-\s*\*\*([^*]+)\*\*:\s*', r'- **\1:** ', formatted, flags=re.MULTILINE)
-    
-    # SMS formatlarını vurgula
-    formatted = re.sub(r'`([^`]+)`', r'`\1`', formatted)
     
     return formatted
 
@@ -116,5 +99,4 @@ Bu konuda bilgi bulunamadı. Lütfen farklı bir soru sorun veya aşağıdaki ö
 - GPRS parametrelerini nasıl ayarlarım?
 - SMS/arama bildirimlerini nasıl yapılandırırım?
 - Cihazı uzaktan nasıl yeniden başlatırım?
-- GSM operatörlerini nasıl atarım?
 - Araç plakasını nasıl değiştiririm?""" 

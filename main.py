@@ -91,7 +91,6 @@ with st.sidebar:
         "GPRS parametrelerini nasıl ayarlarım?",
         "SMS/arama bildirimlerini nasıl yapılandırırım?",
         "Cihazı uzaktan nasıl yeniden başlatırım?",
-        "GSM operatörlerini nasıl atarım?",
         "Araç plakasını nasıl değiştiririm?"
     ]
     

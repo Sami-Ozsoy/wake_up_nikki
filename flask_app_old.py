@@ -41,27 +41,15 @@ def format_input_with_vector_context(user_input, session_id):
     """Vector context ile input formatla"""
     try:
         # Her seferinde yeni bir retriever oluştur
-        retriever = vector_store.get_retriever(k=6)  # Optimal sayı
+        retriever = vector_store.get_retriever(k=8)  # Daha fazla doküman al
         retrieved_docs = retriever.invoke(user_input)
         
         # Debug: Hangi dokümanların alındığını göster
         print(f"----->Retrieved {len(retrieved_docs)} documents for: '{user_input}'")
+        for i, doc in enumerate(retrieved_docs):
+            print(f"----->Doc {i+1}: {doc.page_content[:100]}...")
         
-        # Score'larla birlikte similarity search yap
-        docs_with_scores = vector_store.similarity_search_with_score(user_input, k=6)
-        
-        # Sadece yüksek score'lu dokümanları al (0.7+)
-        high_quality_docs = []
-        for doc, score in docs_with_scores:
-            print(f"----->Doc Score: {score:.3f} - {doc.page_content[:100]}...")
-            if score > 0.7:  # Sadece yüksek kaliteli dokümanları al
-                high_quality_docs.append(doc)
-        
-        if not high_quality_docs:
-            print("----->No high-quality documents found, using all retrieved docs")
-            high_quality_docs = retrieved_docs
-        
-        docs_content = "\n\n".join([doc.page_content for doc in high_quality_docs])
+        docs_content = "\n\n".join([doc.page_content for doc in retrieved_docs])
 
         chat_history = chat_histories.get(session_id, [])
         chat_context = "\n".join([f"Kullanıcı: {q}\nAsistan: {a}" for q, a in chat_history])
@@ -77,7 +65,6 @@ def format_input_with_vector_context(user_input, session_id):
             "question": user_input,
             "context": f"Kullanıcı: {user_input}"
         }
-
 def format_chat_history(input_data):
     """Chat history ve vector context'i formatla"""
     user_input = input_data["user_input"]
@@ -85,27 +72,16 @@ def format_chat_history(input_data):
     
     try:
         # Her seferinde yeni bir retriever oluştur
-        retriever = vector_store.get_retriever(k=6)
+        retriever = vector_store.get_retriever(k=8)
         # Vector context al
         retrieved_docs = retriever.invoke(user_input)
         
         # Debug: Hangi dokümanların alındığını göster
         print(f"----->Chain Retrieved {len(retrieved_docs)} documents for: '{user_input}'")
-        
-        # Score'larla birlikte similarity search yap
-        docs_with_scores = vector_store.similarity_search_with_score(user_input, k=6)
-        
-        # Sadece yüksek score'lu dokümanları al
-        high_quality_docs = []
-        for doc, score in docs_with_scores:
-            print(f"----->Chain Doc Score: {score:.3f} - {doc.page_content[:100]}...")
-            if score > 0.7:
-                high_quality_docs.append(doc)
-        
-        if not high_quality_docs:
-            high_quality_docs = retrieved_docs
+        for i, doc in enumerate(retrieved_docs):
+            print(f"----->Chain Doc {i+1}: {doc.page_content[:100]}...")
             
-        docs_content = "\n\n".join([doc.page_content for doc in high_quality_docs])
+        docs_content = "\n\n".join([doc.page_content for doc in retrieved_docs])
 
         # Chat history al
         chat_history = chat_histories.get(session_id, [])
@@ -137,7 +113,7 @@ def get_response(user_input, session_id):
     try:
         # Context hazırla
         context_data = format_input_with_vector_context(user_input, session_id)
-        print(f"----->Context data length: {len(context_data['context'])}")
+        print(f"----->Context data: {context_data}")
         # Prompt'u formatla
         formatted_prompt = prompt.format(**context_data)
         
@@ -222,6 +198,6 @@ def handle_disconnect():
         del chat_histories[session_id]
 
 if __name__ == '__main__':
-    print("�� Flask uygulaması başlatılıyor...")
+    print("🚀 Flask uygulaması başlatılıyor...")
     print("📱 Tarayıcıda http://localhost:5000 adresini açın")
-    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
+    socketio.run(app, debug=True, host='0.0.0.0', port=5000) 
