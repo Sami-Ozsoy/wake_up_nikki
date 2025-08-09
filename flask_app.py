@@ -1,7 +1,6 @@
 import os
 from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit
-import json
 import time
 
 from config import OPENAI_API_KEY, NEO4J_URI
