@@ -16,8 +16,7 @@ class VectorStore:
         # Daha iyi chunking stratejisi
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=500,  # Daha küçük chunk'lar
-            chunk_overlap=100,  # Daha az overlap
-            length_function=len,
+            chunk_overlap=200,  # Daha az overlap
             separators=["\n\n", "\n", ". ", "! ", "? ", " ", ""]  # Daha iyi separator'lar
         )
     
@@ -38,6 +37,7 @@ class VectorStore:
                         'file_type': 'pdf',
                         'chunk_id': hashlib.md5(f"{filename}_{doc.page_content[:50]}".encode()).hexdigest()[:8]
                     })
+                    print(f"pdf dosyası yüklendi: {filename}")
                 documents.extend(docs)
             elif filename.endswith('.txt'):
                 loader = TextLoader(file_path, encoding='utf-8')
@@ -49,6 +49,7 @@ class VectorStore:
                         'file_type': 'text',
                         'chunk_id': hashlib.md5(f"{filename}_{doc.page_content[:50]}".encode()).hexdigest()[:8]
                     })
+                    print(f"txt dosyası yüklendi: {filename}")
                 documents.extend(docs)
         
         return documents

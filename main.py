@@ -91,6 +91,7 @@ with st.sidebar:
         "GPRS parametrelerini nasıl ayarlarım?",
         "SMS/arama bildirimlerini nasıl yapılandırırım?",
         "Cihazı uzaktan nasıl yeniden başlatırım?",
+        "GSM operatörlerini nasıl atarım?",
         "Araç plakasını nasıl değiştiririm?"
     ]
     
@@ -130,7 +131,6 @@ with col2:
     if st.button("🗑️ Geçmişi Temizle", use_container_width=True):
         st.session_state.messages = []
         st.session_state.chat_count = 0
-        st.rerun()
 
 # Chat geçmişini başlat
 if "messages" not in st.session_state:
@@ -218,8 +218,4 @@ with chat_container:
                 <strong>🤖 Niki:</strong><br>
             </div>
             """, unsafe_allow_html=True)
-            st.markdown(message["content"])
-
-# Sayfa yenileme
-if send_button:
-    st.rerun() 
+            st.markdown(message["content"]) 
