@@ -1,0 +1,27 @@
+{"Parameter ID": 10000, "Parameter Type": "Uint16", "Default value": 3600, "Min": 0, "Max": 2592000, "Parameter name": "Home STOP Min Period"}
+{"Parameter ID": 10004, "Parameter Type": "Uint8", "Default value": 1, "Min": 1, "Max": 255, "Parameter name": "Home STOP Min Saved Records"}
+{"Parameter ID": 10005, "Parameter Type": "Uint16", "Default value": 120, "Min": 0, "Max": 2592000, "Parameter name": "Home STOP Send Period"}
+{"Parameter ID": 10050, "Parameter Type": "Uint16", "Default value": 300, "Min": 0, "Max": 2592000, "Parameter name": "Home MOVING Min Period"}
+{"Parameter ID": 10051, "Parameter Type": "Uint16", "Default value": 100, "Min": 0, "Max": 65535, "Parameter name": "Home MOVING Min Distance"}
+{"Parameter ID": 10052, "Parameter Type": "Uint8", "Default value": 10, "Min": 0, "Max": 180, "Parameter name": "Home MOVING Min Angle"}
+{"Parameter ID": 10053, "Parameter Type": "Uint8", "Default value": 10, "Min": 0, "Max": 100, "Parameter name": "Home MOVING Min Speed Delta"}
+{"Parameter ID": 10054, "Parameter Type": "Uint8", "Default value": 1, "Min": 1, "Max": 255, "Parameter name": "Home MOVING Min Saved Records"}
+{"Parameter ID": 10055, "Parameter Type": "Uint16", "Default value": 120, "Min": 0, "Max": 2592000, "Parameter name": "Home MOVING Send Period"}
+{"Parameter ID": 10100, "Parameter Type": "Uint16", "Default value": 3600, "Min": 0, "Max": 2592000, "Parameter name": "Roaming STOP Min Period"}
+{"Parameter ID": 10104, "Parameter Type": "Uint8", "Default value": 1, "Min": 1, "Max": 255, "Parameter name": "Roaming STOP Min Saved Records"}
+{"Parameter ID": 10105, "Parameter Type": "Uint16", "Default value": 0, "Min": 0, "Max": 2592000, "Parameter name": "Roaming STOP Send Period"}
+{"Parameter ID": 10150, "Parameter Type": "Uint16", "Default value": 300, "Min": 0, "Max": 2592000, "Parameter name": "Roaming MOVING Min Period"}
+{"Parameter ID": 10151, "Parameter Type": "Uint16", "Default value": 100, "Min": 0, "Max": 65535, "Parameter name": "Roaming MOVING Min Distance"}
+{"Parameter ID": 10152, "Parameter Type": "Uint8", "Default value": 10, "Min": 0, "Max": 180, "Parameter name": "Roaming MOVING Min Angle"}
+{"Parameter ID": 10153, "Parameter Type": "Uint8", "Default value": 10, "Min": 0, "Max": 100, "Parameter name": "Roaming MOVING Min Speed Delta"}
+{"Parameter ID": 10154, "Parameter Type": "Uint8", "Default value": 1, "Min": 1, "Max": 255, "Parameter name": "Roaming MOVING Min Saved Records"}
+{"Parameter ID": 10155, "Parameter Type": "Uint16", "Default value": 0, "Min": 0, "Max": 2592000, "Parameter name": "Roaming MOVING Send Period"}
+{"Parameter ID": 10200, "Parameter Type": "Uint16", "Default value": 3600, "Min": 0, "Max": 2592000, "Parameter name": "Unknown STOP Min Period"}
+{"Parameter ID": 10204, "Parameter Type": "Uint8", "Default value": 1, "Min": 1, "Max": 255, "Parameter name": "Unknown STOP Min Saved Records"}
+{"Parameter ID": 10205, "Parameter Type": "Uint16", "Default value": 120, "Min": 0, "Max": 2592000, "Parameter name": "Unknown STOP Send Period"}
+{"Parameter ID": 10250, "Parameter Type": "Uint16", "Default value": 300, "Min": 0, "Max": 2592000, "Parameter name": "Unknown MOVING Min Period"}
+{"Parameter ID": 10251, "Parameter Type": "Uint16", "Default value": 100, "Min": 0, "Max": 65535, "Parameter name": "Unknown MOVING Min Distance"}
+{"Parameter ID": 10252, "Parameter Type": "Uint8", "Default value": 10, "Min": 0, "Max": 180, "Parameter name": "Unknown MOVING Min Angle"}
+{"Parameter ID": 10253, "Parameter Type": "Uint8", "Default value": 10, "Min": 0, "Max": 100, "Parameter name": "Unknown MOVING Min Speed Delta"}
+{"Parameter ID": 10254, "Parameter Type": "Uint8", "Default value": 1, "Min": 1, "Max": 255, "Parameter name": "Unknown MOVING Min Saved Records"}
+{"Parameter ID": 10255, "Parameter Type": "Uint16", "Default value": 0, "Min": 0, "Max": 2592000, "Parameter name": "Unknown MOVING Send Period"}

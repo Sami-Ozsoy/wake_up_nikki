@@ -4,16 +4,8 @@ from flask_socketio import SocketIO, emit
 import time
 
 from config import OPENAI_API_KEY, NEO4J_URI
-from utils.helpers import get_llm
-from utils.loaders import load_prompt
-from vector.vector_store import VectorStore
+from utils.agents.agent_factory import AgentFactory
 from utils.formatter import format_llm_response, format_error_response, format_no_info_response
-
-from langchain.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnableLambda
-from langchain.memory import ConversationBufferMemory
-from langchain_core.messages import HumanMessage, AIMessage
 
 # Proje kök dizinini bul
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -28,132 +20,19 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 # Chat geçmişi (session bazlı)
 chat_histories = {}
 
-# Prompt hazırla
-prompt_text = load_prompt("prompts/main_prompt.txt")
-prompt = ChatPromptTemplate.from_template(prompt_text)
+# Agent factory
+agent_factory = AgentFactory()
 
-# LLM ve retriever ayarları
-llm = get_llm()
-vector_store = VectorStore()
-
-def format_input_with_vector_context(user_input, session_id):
-    """Vector context ile input formatla"""
-    try:
-        # Her seferinde yeni bir retriever oluştur
-        retriever = vector_store.get_retriever(k=6)  # Optimal sayı
-        retrieved_docs = retriever.invoke(user_input)
-        
-        # Debug: Hangi dokümanların alındığını göster
-        print(f"----->Retrieved {len(retrieved_docs)} documents for: '{user_input}'")
-        
-        # Score'larla birlikte similarity search yap
-        docs_with_scores = vector_store.similarity_search_with_score(user_input, k=6)
-        
-        # Sadece yüksek score'lu dokümanları al (0.7+)
-        high_quality_docs = []
-        for doc, score in docs_with_scores:
-            print(f"----->Doc Score: {score:.3f} - {doc.page_content[:100]}...")
-            if score > 0.7:  # Sadece yüksek kaliteli dokümanları al
-                high_quality_docs.append(doc)
-        
-        if not high_quality_docs:
-            print("----->No high-quality documents found, using all retrieved docs")
-            high_quality_docs = retrieved_docs
-        
-        docs_content = "\n\n".join([doc.page_content for doc in high_quality_docs])
-
-        chat_history = chat_histories.get(session_id, [])
-        chat_context = "\n".join([f"Kullanıcı: {q}\nAsistan: {a}" for q, a in chat_history])
-
-        full_context = f"{docs_content}\n\n{chat_context}\nKullanıcı: {user_input}"
-        return {
-            "question": user_input,
-            "context": full_context
-        }
-    except Exception as e:
-        print(f"Vector context hatası: {e}")
-        return {
-            "question": user_input,
-            "context": f"Kullanıcı: {user_input}"
-        }
-
-def format_chat_history(input_data):
-    """Chat history ve vector context'i formatla"""
-    user_input = input_data["user_input"]
-    session_id = input_data["session_id"]
-    
-    try:
-        # Her seferinde yeni bir retriever oluştur
-        retriever = vector_store.get_retriever(k=6)
-        # Vector context al
-        retrieved_docs = retriever.invoke(user_input)
-        
-        # Debug: Hangi dokümanların alındığını göster
-        print(f"----->Chain Retrieved {len(retrieved_docs)} documents for: '{user_input}'")
-        
-        # Score'larla birlikte similarity search yap
-        docs_with_scores = vector_store.similarity_search_with_score(user_input, k=6)
-        
-        # Sadece yüksek score'lu dokümanları al
-        high_quality_docs = []
-        for doc, score in docs_with_scores:
-            print(f"----->Chain Doc Score: {score:.3f} - {doc.page_content[:100]}...")
-            if score > 0.7:
-                high_quality_docs.append(doc)
-        
-        if not high_quality_docs:
-            high_quality_docs = retrieved_docs
-            
-        docs_content = "\n\n".join([doc.page_content for doc in high_quality_docs])
-
-        # Chat history al
-        chat_history = chat_histories.get(session_id, [])
-        chat_context = "\n".join([f"Kullanıcı: {q}\nAsistan: {a}" for q, a in chat_history])
-
-        # Tam context oluştur
-        full_context = f"{docs_content}\n\n{chat_context}\nKullanıcı: {user_input}"
-        
-        return {
-            "question": user_input,
-            "context": full_context
-        }
-    except Exception as e:
-        print(f"Vector context hatası: {e}")
-        return {
-            "question": user_input,
-            "context": f"Kullanıcı: {user_input}"
-        }
-    
-chain = (
-    RunnableLambda(format_chat_history)
-    | prompt
-    | llm
-    | StrOutputParser()
-)
-
-def get_response(user_input, session_id):
+def get_response(user_input, session_id, agent_type="rag"):
     """Kullanıcı mesajına yanıt ver"""
     try:
-        # Context hazırla
-        context_data = format_input_with_vector_context(user_input, session_id)
-        print(f"----->Context data length: {len(context_data['context'])}")
-        # Prompt'u formatla
-        formatted_prompt = prompt.format(**context_data)
+        # Agent'ı al
+        agent = agent_factory.get_agent(agent_type)
         
-        # LLM'den yanıt al
-        response = llm.invoke(formatted_prompt)
+        # Agent ile sohbet
+        response = agent.chat(user_input)
         
-        # Yanıtı al
-        response_content = response.content if hasattr(response, 'content') else str(response)
-        
-        # Yanıtı formatla
-        formatted_response = format_llm_response(response_content)
-        
-        # Eğer yanıt çok kısaysa veya hata içeriyorsa
-        if len(formatted_response.strip()) < 50 or "bilgi bulunamadı" in formatted_response.lower():
-            return format_no_info_response()
-        
-        return formatted_response
+        return response
     except Exception as e:
         print(f"Yanıt alma hatası: {e}")
         return format_error_response(str(e))
@@ -166,6 +45,7 @@ def index():
 def chat():
     data = request.get_json()
     message = data.get('message', '')
+    agent_type = data.get('agent_type', 'rag')  # Varsayılan olarak RAG
     session_id = session.get('session_id', str(time.time()))
     
     if not session_id in chat_histories:
@@ -176,8 +56,10 @@ def chat():
     
     try:
         print(f"----->Kullanıcı mesajı: {message}")
+        print(f"----->Agent türü: {agent_type}")
         print(f"----->Session ID: {session_id}")
-        response = get_response(message, session_id)
+        
+        response = get_response(message, session_id, agent_type)
         
         # Geçmişe ekle
         chat_histories[session_id].append((message, response))
@@ -185,10 +67,20 @@ def chat():
         return jsonify({
             'response': response,
             'session_id': session_id,
+            'agent_type': agent_type,
             'timestamp': time.time()
         })
     except Exception as e:
         return jsonify({'error': f'Hata oluştu: {str(e)}'})
+
+@app.route('/api/agents', methods=['GET'])
+def get_agents():
+    """Mevcut agent'ların listesini döndür"""
+    try:
+        agents = agent_factory.get_available_agents()
+        return jsonify({'agents': agents})
+    except Exception as e:
+        return jsonify({'error': f'Agent listesi alınamadı: {str(e)}'})
 
 @app.route('/api/clear', methods=['POST'])
 def clear_history():
@@ -221,6 +113,6 @@ def handle_disconnect():
         del chat_histories[session_id]
 
 if __name__ == '__main__':
-    print("�� Flask uygulaması başlatılıyor...")
+    print("🤖 Flask uygulaması başlatılıyor...")
     print("📱 Tarayıcıda http://localhost:5000 adresini açın")
     socketio.run(app, debug=True, host='0.0.0.0', port=5000)

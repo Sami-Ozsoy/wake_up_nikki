@@ -23,7 +23,7 @@ SMS komutu:
 setparam 10000:600;10004:1;10005:1
 
 --------------------------------------------------
-3. HOME NETWORK MOVE MODE (EVENT BASED)
+2. HOME NETWORK MOVE MODE (EVENT BASED)
 --------------------------------------------------
 
 Amaç: Home GSM ağına bağlıyken hareketli modda sadece süreye dayalı olarak veri gönderimi (30 saniye)
@@ -41,7 +41,7 @@ setparam 10050:30;10051:0;10052:0;10053:0;10054:1;10055:30
 
 
 --------------------------------------------------
-4. ROAMING NETWORK STOP MODE
+3. ROAMING NETWORK STOP MODE
 --------------------------------------------------
 
 Amaç: Roaming durumunda araç durağanken 600 saniyede bir veri gönderimi
@@ -73,7 +73,7 @@ setparam 10150:30;10151:0;10152:0;10153:0;10154:1;10155:30
 
 
 --------------------------------------------------
-6. UNKNOWN NETWORK STOP MODE
+5. UNKNOWN NETWORK STOP MODE
 --------------------------------------------------
 
 Amaç: GSM ağı bilinmiyorken araç durağanken 600 saniyede bir veri gönderimi
@@ -87,7 +87,7 @@ SMS komutu:
 setparam 10200:600;10204:1;10205:600
 
 --------------------------------------------------
-5. UNKNOWN NETWORK MOVE MODE (EVENT BASED)
+6. UNKNOWN NETWORK MOVE MODE (EVENT BASED)
 --------------------------------------------------
 
 Amaç: GSM ağı bilinmiyorsa hareketli modda 30 saniyede bir veri gönderimi
@@ -104,7 +104,7 @@ SMS komutu:
 setparam 10250:30;10251:0;10252:0;10253:0;10254:1;10255:30
 
 --------------------------------------------------
-6. TOPLU AYAR KOMUTU
+7. TOPLU AYAR KOMUTU
 --------------------------------------------------
 
 Tüm ayarları tek bir SMS ile göndermek için:
@@ -112,7 +112,7 @@ Tüm ayarları tek bir SMS ile göndermek için:
 setparam 10000:600;10004:1;10005:1;10001:30;10006:1;10007:1;10050:30;10051:0;10052:0;10053:0;10054:1;10055:30;10150:30;10151:0;10152:0;10153:0;10154:1;10155:30;10250:30;10251:0;10252:0;10253:0;10254:1;10255:30
 
 --------------------------------------------------
-7. NOTLAR
+8. NOTLAR
 --------------------------------------------------
 
 - Home / Roaming / Unknown parametreleri GSM şebekesi durumuna göre otomatik olarak devreye girer.

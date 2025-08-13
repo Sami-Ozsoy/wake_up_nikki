@@ -368,6 +368,22 @@
                 <i class="fas fa-plus"></i> Yeni Sohbet
             </button>
             
+            <!-- Agent Seçimi -->
+            <div style="margin: 20px 0;">
+                <h5 style="color: #ececf1; margin: 15px 0 10px 0;">🤖 Agent Seçimi</h5>
+                <select id="agentSelect" class="form-control" style="background: #40414f; border: 1px solid #565869; color: #ececf1; padding: 8px; border-radius: 6px; width: 100%; margin-bottom: 10px;">
+                    <option value="rag">🔄 RAG Agent (Geleneksel)</option>
+                    <option value="smol">⚡ SmolAgent (Hızlı)</option>
+                    <option value="langgraph">🔄 LangGraph (Gelişmiş)</option>
+                </select>
+                <div id="agentInfo" style="font-size: 0.8rem; color: #8e8ea0; padding: 8px; background: #40414f; border-radius: 4px; margin-bottom: 10px;">
+                    RAG Agent: Geleneksel RAG tabanlı FM130 komut yardımcısı
+                </div>
+                <button onclick="refreshAgents()" class="example-btn" style="width: 100%; margin-bottom: 10px;">
+                    <i class="fas fa-sync-alt"></i> Agent Durumunu Kontrol Et
+                </button>
+            </div>
+            
             <h5 style="color: #ececf1; margin: 15px 0 10px 0;">💡 Örnek Sorular</h5>
             <div id="examples"></div>
             
@@ -375,6 +391,7 @@
                 <h5>📊 İstatistikler</h5>
                 <p>Toplam Sohbet: <span id="chatCount">0</span></p>
                 <p>Son Güncelleme: <span id="lastUpdate">-</span></p>
+                <p>Aktif Agent: <span id="activeAgent">RAG</span></p>
             </div>
         </div>
         
@@ -492,6 +509,7 @@
             const input = document.getElementById('messageInput');
             const sendBtn = document.getElementById('sendBtn');
             const message = input.value.trim();
+            const agentType = document.getElementById('agentSelect').value;
             
             if (!message) return;
             
@@ -510,7 +528,10 @@
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message: message })
+                body: JSON.stringify({ 
+                    message: message,
+                    agent_type: agentType
+                })
             })
             .then(response => response.json())
             .then(data => {
@@ -577,7 +598,80 @@
         function updateStats() {
             document.getElementById('chatCount').textContent = chatCount;
             document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+            document.getElementById('activeAgent').textContent = document.getElementById('agentSelect').options[document.getElementById('agentSelect').selectedIndex].text;
         }
+        
+        function refreshAgents() {
+            fetch('/api/agents')
+            .then(response => response.json())
+            .then(data => {
+                if (data.agents) {
+                    updateAgentInfo(data.agents);
+                }
+            })
+            .catch(error => {
+                console.error('Agent bilgileri alınamadı:', error);
+            });
+        }
+        
+        function updateAgentInfo(agents) {
+            const agentSelect = document.getElementById('agentSelect');
+            const agentInfo = document.getElementById('agentInfo');
+            
+            // Mevcut seçimi sakla
+            const currentSelection = agentSelect.value;
+            
+            // Select'i güncelle
+            agentSelect.innerHTML = '';
+            
+            Object.entries(agents).forEach(([key, agent]) => {
+                const option = document.createElement('option');
+                option.value = key;
+                
+                if (agent.status === 'available') {
+                    option.textContent = `${getAgentIcon(key)} ${agent.name}`;
+                    option.disabled = false;
+                } else {
+                    option.textContent = `${getAgentIcon(key)} ${agent.name} (Kurulum Gerekli)`;
+                    option.disabled = true;
+                }
+                
+                agentSelect.appendChild(option);
+            });
+            
+            // Önceki seçimi geri yükle
+            if (agents[currentSelection] && agents[currentSelection].status === 'available') {
+                agentSelect.value = currentSelection;
+            } else {
+                // Varsayılan olarak RAG'ı seç
+                agentSelect.value = 'rag';
+            }
+            
+            // Agent bilgilerini güncelle
+            const selectedAgent = agents[agentSelect.value];
+            if (selectedAgent) {
+                agentInfo.innerHTML = `
+                    <strong>${selectedAgent.name}:</strong> ${selectedAgent.description}
+                    ${selectedAgent.status === 'unavailable' ? '<br><span style="color: #ff6b6b;">⚠️ ' + (selectedAgent.error || 'Kurulum gerekli') + '</span>' : ''}
+                `;
+            }
+            
+            updateStats();
+        }
+        
+        function getAgentIcon(agentType) {
+            const icons = {
+                'rag': '🔄',
+                'smol': '⚡',
+                'langgraph': '🔄'
+            };
+            return icons[agentType] || '🤖';
+        }
+        
+        // Agent seçimi değiştiğinde bilgileri güncelle
+        document.getElementById('agentSelect').addEventListener('change', function() {
+            refreshAgents();
+        });
         
         // Enter tuşu ile mesaj gönderme
         document.getElementById('messageInput').addEventListener('keydown', function(e) {
@@ -590,6 +684,7 @@
         // Sayfa yüklendiğinde
         document.addEventListener('DOMContentLoaded', function() {
             loadExamples();
+            refreshAgents(); // Agent bilgilerini yükle
             updateStats();
             document.getElementById('messageInput').focus();
         });
