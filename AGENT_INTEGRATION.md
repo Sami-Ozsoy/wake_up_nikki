@@ -4,10 +4,8 @@ Bu dokümantasyon, FM130 projesine eklenen LLM agent'larının nasıl kullanıla
 
 ## 🚀 Eklenen Özellikler
 
-### 1. **Çoklu Agent Desteği**
-- **RAG Agent**: Geleneksel RAG tabanlı yaklaşım
-- **SmolAgent**: Hafif ve hızlı agent
-- **LangGraph Agent**: State machine tabanlı gelişmiş agent
+### 1. **Agent Desteği**
+- **SmolAgent**: Hafif ve hızlı agent (tek aktif agent)
 
 ### 2. **Ortak Tool Sistemi**
 Tüm agent'lar aynı domain-specific tools'ları kullanır:
@@ -27,8 +25,7 @@ utils/
 ├── agents/
 │   ├── __init__.py
 │   ├── smol_agent.py          # SmolAgent implementasyonu
-│   ├── langgraph_agent.py     # LangGraph implementasyonu
-│   └── agent_factory.py       # Agent factory ve yönetimi
+│   └── agent_factory.py       # Agent factory (yalnızca SmolAgent)
 ├── tools.py                   # Ortak domain tools
 └── helpers.py                 # LLM yardımcıları
 ```
@@ -37,7 +34,7 @@ utils/
 
 ### 1. **Dependencies Ekle**
 ```bash
-pip install smolagents langgraph pydantic
+pip install smolagents pydantic
 ```
 
 ### 2. **Environment Variables**
@@ -61,10 +58,7 @@ python flask_app.py
 Tarayıcıda `http://localhost:5000` adresini açın.
 
 ### **Agent Seçimi**
-Sidebar'da agent türünü seçin:
-- 🔄 **RAG Agent**: Geleneksel yaklaşım
-- ⚡ **SmolAgent**: Hızlı ve hafif
-- 🔄 **LangGraph**: Gelişmiş workflow
+Sidebar'da yalnızca ⚡ **SmolAgent** mevcuttur.
 
 ## 🔧 API Endpoints
 
@@ -94,14 +88,8 @@ from utils.agents.agent_factory import AgentFactory
 
 factory = AgentFactory()
 
-# SmolAgent test
 smol_agent = factory.get_agent("smol")
 response = smol_agent.chat("Batarya durumunu nasıl kontrol ederim?")
-print(response)
-
-# LangGraph test
-langgraph_agent = factory.get_agent("langgraph")
-response = langgraph_agent.chat("GPRS parametrelerini nasıl ayarlarım?")
 print(response)
 ```
 
@@ -134,10 +122,7 @@ pip install smolagents
 pip install git+https://github.com/smol-ai/smolagents.git
 ```
 
-### **LangGraph Kurulum Hatası**
-```bash
-pip install langgraph
-```
+ 
 
 ### **Tool Import Hatası**
 ```python
