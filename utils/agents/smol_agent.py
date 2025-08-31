@@ -5,7 +5,8 @@ from utils.tools import (
     get_command_details,
     validate_parameters,
     create_configuration_plan,
-    troubleshoot_fm130_issue
+    troubleshoot_fm130_issue,
+    search_n430_parameters
 )
 from typing import Dict, Any
 
@@ -21,6 +22,11 @@ class FM130SmolAgent:
                 name="search_fm130_commands",
                 func=search_fm130_commands,
                 description="FM130 komutlarını vector store'da ara. Kullanıcı sorgusuna göre ilgili komutları bulur."
+            ),
+            Tool(
+                name="search_n430_parameters",
+                func=search_n430_parameters,
+                description="N430 parametre listesinden arama yapar. Parametre adı/açıklama/sms formatı üzerinden arar."
             ),
             Tool(
                 name="get_command_details",

@@ -2,6 +2,18 @@ from typing import List, Dict, Any
 from vector.vector_store import VectorStore
 import re
 
+SYNONYMS_TR = {
+    "apn": ["access point name", "internet"],
+    "gprs": ["internet", "data"],
+    "sms": ["mesaj"],
+    "imei": ["cihaz kimliği"],
+}
+
+def expand_query(query: str) -> List[str]:
+    tokens = query.lower().split()
+    alts = {w for t in tokens for w in SYNONYMS_TR.get(t, [])}
+    return [query] + [f"{query} {w}" for w in sorted(alts)]
+
 # Vector store instance
 _vector_store = VectorStore()
 
@@ -240,3 +252,31 @@ def troubleshoot_fm130_issue(issue_description: str) -> Dict[str, Any]:
             'solutions': ['Teknik destek ile iletişime geç'],
             'diagnostic_steps': []
         } 
+
+
+def search_n430_parameters(query: str) -> List[Dict[str, Any]]:
+    """
+    N430 parametre listesinden arama yap (hibrit retriever + cihaz filtresi).
+    """
+    try:
+        vs = VectorStore()
+        retriever = getattr(vs, "get_hybrid_retriever", vs.get_retriever)()
+        queries = expand_query(query)
+
+        seen = {}
+        for q in queries:
+            docs = retriever.get_relevant_documents(q)
+            for doc in docs:
+                if doc.metadata.get("device") != "N430":
+                    continue
+                key = (doc.metadata.get("param_name"), doc.page_content[:60])
+                if key not in seen:
+                    seen[key] = {
+                        'content': doc.page_content,
+                        'metadata': doc.metadata,
+                        'source': doc.metadata.get('source', 'Unknown')
+                    }
+        return list(seen.values())[:5]
+    except Exception as e:
+        print(f"N430 arama hatası: {e}")
+        return []

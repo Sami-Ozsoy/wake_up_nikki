@@ -22,7 +22,6 @@ class AgentFactory:
 
         return self.agents["smol"]
     
-    # RAG kaldırıldı
     
     def _create_fallback_agent(self):
         """Fallback agent oluştur (hata durumunda)"""
