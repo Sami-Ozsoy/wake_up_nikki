@@ -17,7 +17,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Port'u aç
-EXPOSE 8501
+EXPOSE 5000
 
-# Streamlit uygulamasını çalıştır
-CMD ["streamlit", "run", "main.py", "--server.port=8501", "--server.address=0.0.0.0"] 
+# Flask uygulamasını çalıştır
+CMD ["python", "flask_app.py"] 

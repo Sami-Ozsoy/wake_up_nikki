@@ -5,7 +5,7 @@ FM130 cihazı komutları konusunda size yardımcı olan RAG (Retrieval-Augmented
 ## 📋 Özellikler
 
 - **RAG Tabanlı Yanıtlar**: FM130 komut referanslarından akıllı bilgi çıkarımı
-- **Çoklu Web Arayüzü**: Flask, Streamlit ve Gradio seçenekleri
+- **Web Arayüzü**: Flask tabanlı modern arayüz
 - **ChatGPT Benzeri UI**: Modern ve kullanıcı dostu arayüz
 - **Markdown Desteği**: Zengin formatlanmış yanıtlar
 - **Örnek Sorular**: Hızlı başlangıç için önceden hazırlanmış sorular
@@ -16,8 +16,6 @@ FM130 cihazı komutları konusunda size yardımcı olan RAG (Retrieval-Augmented
 ```
 wake_up_nikki/
 ├── flask_app.py              # Flask uygulaması
-├── main.py                   # Streamlit uygulaması
-├── gradio_app.py             # Gradio uygulaması
 ├── config.py                 # Konfigürasyon ayarları
 ├── utils/                    # Yardımcı fonksiyonlar
 │   ├── helpers.py           # LLM entegrasyonu
@@ -89,9 +87,7 @@ print('Vector index oluşturuldu!')
 "
 ```
 
-## 🎯 Kullanım
-
-### Flask Uygulaması (Önerilen)
+## 🎯 Kullanım (Flask)
 
 ```bash
 python flask_app.py
@@ -104,29 +100,6 @@ python flask_app.py
 - Kod kopyalama özelliği
 - Responsive tasarım
 
-### Streamlit Uygulaması
-
-```bash
-streamlit run main.py
-```
-
-**Özellikler:**
-- Kolay kurulum ve kullanım
-- Sidebar ile ayarlar
-- Örnek soru butonları
-- İstatistik paneli
-
-### Gradio Uygulaması
-
-```bash
-python gradio_app.py
-```
-
-**Özellikler:**
-- Hızlı prototipleme
-- Otomatik API oluşturma
-- Kolay paylaşım
-
 ## 🔧 Konfigürasyon
 
 ### Environment Değişkenleri
@@ -134,24 +107,11 @@ python gradio_app.py
 ```bash
 # .env dosyası
 OPENAI_API_KEY=your_openai_api_key_here
-NEO4J_URI=bolt://localhost:7687  # Opsiyonel
-NEO4J_USERNAME=neo4j            # Opsiyonel
-NEO4J_PASSWORD=password         # Opsiyonel
 ```
 
 ### Prompt Özelleştirme
 
 `prompts/main_prompt.txt` dosyasını düzenleyerek AI asistanının davranışını özelleştirebilirsiniz.
-
-## 📊 Arayüz Karşılaştırması
-
-| Özellik | Flask | Streamlit | Gradio |
-|---------|-------|-----------|--------|
-| Kurulum Kolaylığı | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| Özelleştirme | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| Performans | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
-| Modern UI | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| Deployment | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
 
 ## 💡 Örnek Kullanım
 
@@ -212,8 +172,8 @@ AI asistanı yanıtları şu formatta verir:
 # Docker image oluşturun
 docker build -t niki-fm130 .
 
-# Container'ı çalıştırın
-docker run -p 8501:8501 niki-fm130
+# Container'ı çalıştırın (Flask 5000 portu)
+docker run -p 5000:5000 niki-fm130
 ```
 
 ## 🔍 Sorun Giderme
@@ -236,9 +196,6 @@ docker run -p 8501:8501 niki-fm130
 ```bash
 # Flask uygulaması için
 python flask_app.py
-
-# Streamlit uygulaması için
-streamlit run main.py --server.port=8501
 ```
 
 ## 🤝 Katkıda Bulunma

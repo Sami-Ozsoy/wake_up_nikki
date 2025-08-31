@@ -1,7 +1,6 @@
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 import os
-from langchain_ollama import OllamaLLM
 
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")

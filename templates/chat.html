@@ -372,12 +372,10 @@
             <div style="margin: 20px 0;">
                 <h5 style="color: #ececf1; margin: 15px 0 10px 0;">🤖 Agent Seçimi</h5>
                 <select id="agentSelect" class="form-control" style="background: #40414f; border: 1px solid #565869; color: #ececf1; padding: 8px; border-radius: 6px; width: 100%; margin-bottom: 10px;">
-                    <option value="rag">🔄 RAG Agent (Geleneksel)</option>
                     <option value="smol">⚡ SmolAgent (Hızlı)</option>
-                    <option value="langgraph">🔄 LangGraph (Gelişmiş)</option>
                 </select>
                 <div id="agentInfo" style="font-size: 0.8rem; color: #8e8ea0; padding: 8px; background: #40414f; border-radius: 4px; margin-bottom: 10px;">
-                    RAG Agent: Geleneksel RAG tabanlı FM130 komut yardımcısı
+                    SmolAgent: Hafif ve hızlı FM130 komut yardımcısı
                 </div>
                 <button onclick="refreshAgents()" class="example-btn" style="width: 100%; margin-bottom: 10px;">
                     <i class="fas fa-sync-alt"></i> Agent Durumunu Kontrol Et
@@ -391,7 +389,7 @@
                 <h5>📊 İstatistikler</h5>
                 <p>Toplam Sohbet: <span id="chatCount">0</span></p>
                 <p>Son Güncelleme: <span id="lastUpdate">-</span></p>
-                <p>Aktif Agent: <span id="activeAgent">RAG</span></p>
+                <p>Aktif Agent: <span id="activeAgent">SmolAgent</span></p>
             </div>
         </div>
         
@@ -643,8 +641,8 @@
             if (agents[currentSelection] && agents[currentSelection].status === 'available') {
                 agentSelect.value = currentSelection;
             } else {
-                // Varsayılan olarak RAG'ı seç
-                agentSelect.value = 'rag';
+                // Varsayılan olarak Smol'u seç
+                agentSelect.value = 'smol';
             }
             
             // Agent bilgilerini güncelle
@@ -661,9 +659,7 @@
         
         function getAgentIcon(agentType) {
             const icons = {
-                'rag': '🔄',
-                'smol': '⚡',
-                'langgraph': '🔄'
+                'smol': '⚡'
             };
             return icons[agentType] || '🤖';
         }

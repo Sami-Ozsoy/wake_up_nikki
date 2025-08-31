@@ -3,9 +3,8 @@ from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit
 import time
 
-from config import OPENAI_API_KEY, NEO4J_URI
 from utils.agents.agent_factory import AgentFactory
-from utils.formatter import format_llm_response, format_error_response, format_no_info_response
+from utils.formatter import format_error_response
 
 # Proje kök dizinini bul
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -23,14 +22,29 @@ chat_histories = {}
 # Agent factory
 agent_factory = AgentFactory()
 
-def get_response(user_input, session_id, agent_type="rag"):
+def get_response(user_input, session_id, agent_type="smol"):
     """Kullanıcı mesajına yanıt ver"""
     try:
         # Agent'ı al
         agent = agent_factory.get_agent(agent_type)
         
-        # Agent ile sohbet
-        response = agent.chat(user_input)
+        # Bu session'a ait chat geçmişini al
+        history = chat_histories.get(session_id, [])
+        
+        # Agent türüne göre session bilgisini aktar
+        if hasattr(agent, 'chat'):
+            try:
+                # RAGAgent: chat_history parametresi destekleniyor
+                response = agent.chat(user_input, chat_history=history)
+            except TypeError:
+                # SmolAgent: eski imza sadece mesaj olabilir
+                try:
+                    response = agent.chat(user_input, session_id=session_id)
+                except TypeError:
+                    # Eski imza: sadece mesaj
+                    response = agent.chat(user_input)
+        else:
+            response = "❌ Agent geçersiz"
         
         return response
     except Exception as e:
@@ -45,7 +59,7 @@ def index():
 def chat():
     data = request.get_json()
     message = data.get('message', '')
-    agent_type = data.get('agent_type', 'rag')  # Varsayılan olarak RAG
+    agent_type = data.get('agent_type', 'smol')  # Varsayılan SmolAgent
     session_id = session.get('session_id', str(time.time()))
     
     if not session_id in chat_histories:

@@ -70,30 +70,6 @@ def test_smol_agent():
         print(f"❌ SmolAgent test hatası: {e}")
         return False
 
-def test_langgraph_agent():
-    """LangGraph agent'ı test et"""
-    print("🔄 LangGraph Agent test ediliyor...")
-    
-    try:
-        from utils.agents.langgraph_agent import FM130LangGraphAgent
-        
-        agent = FM130LangGraphAgent()
-        print(f"Agent oluşturuldu: {agent.get_agent_info()['name']}")
-        
-        # Test mesajı
-        test_message = "GPRS parametrelerini nasıl ayarlarım?"
-        print(f"Test mesajı: '{test_message}'")
-        
-        response = agent.chat(test_message)
-        print(f"Yanıt alındı: {len(response)} karakter")
-        print(f"Yanıt önizleme: {response[:100]}...")
-        
-        print("✅ LangGraph Agent test başarılı!\n")
-        return True
-        
-    except Exception as e:
-        print(f"❌ LangGraph Agent test hatası: {e}")
-        return False
 
 def test_agent_factory():
     """Agent factory'yi test et"""
@@ -112,14 +88,14 @@ def test_agent_factory():
             status = "✅" if agent_info['status'] == 'available' else "❌"
             print(f"  {status} {agent_type}: {agent_info['name']}")
         
-        # RAG agent testi
-        rag_agent = factory.get_agent("rag")
-        print(f"RAG agent oluşturuldu: {rag_agent.get_agent_info()['name']}")
+        # SmolAgent testi (factory üzerinden)
+        smol_agent = factory.get_agent("smol")
+        print(f"SmolAgent oluşturuldu: {smol_agent.get_agent_info()['name']}")
         
         # Test mesajı
         test_message = "SMS bildirimlerini nasıl yapılandırırım?"
-        response = rag_agent.chat(test_message)
-        print(f"RAG yanıtı: {len(response)} karakter")
+        response = smol_agent.chat(test_message)
+        print(f"SmolAgent yanıtı: {len(response)} karakter")
         
         print("✅ Agent Factory test başarılı!\n")
         return True
@@ -135,7 +111,6 @@ def main():
     tests = [
         test_tools,
         test_smol_agent,
-        test_langgraph_agent,
         test_agent_factory
     ]
     
@@ -153,7 +128,7 @@ def main():
     print("📊 Test Sonuçları:")
     print("=" * 50)
     
-    test_names = ["Tools", "SmolAgent", "LangGraph", "Agent Factory"]
+    test_names = ["Tools", "SmolAgent", "Agent Factory"]
     for i, (name, result) in enumerate(zip(test_names, results)):
         status = "✅ BAŞARILI" if result else "❌ BAŞARISIZ"
         print(f"{name:15}: {status}")
