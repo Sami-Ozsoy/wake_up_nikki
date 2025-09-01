@@ -1,67 +1,94 @@
-from smolagents import CodeAgent, Tool
+from smolagents import CodeAgent, Tool, OpenAIModel
 from utils.helpers import get_llm
 from utils.tools import (
-    search_fm130_commands,
-    get_command_details,
-    validate_parameters,
-    create_configuration_plan,
-    troubleshoot_fm130_issue,
-    search_n430_parameters
+    search_fm130_commands
 )
 from typing import Dict, Any
+from config import OPENAI_API_KEY
+
+class SearchFM130CommandsTool(Tool):
+    """SmolAgents Tool: RAG'den FM130 bilgilerini getirir."""
+    name = "search_fm130_commands"
+    description = (
+        "FM130/FMB Teltonika cihaz komut ve parametrelerini arar. "
+        "Bu aracı SADECE kullanıcı sorusu cihaz komutları/parametreleriyle ilgiliyse kullan; "
+        "genel sohbet veya cihaz dışı konularda bu aracı KULLANMA."
+    )
+    output_type = "any"
+    inputs = {
+        "query": {
+            "type": "string",
+            "description": "Kullanıcı sorgusu veya anahtar kelimeler"
+        }
+    }
+    outputs = {
+        "results": {
+            "type": "array",
+            "items": {"type": "object"},
+            "description": "En alakalı komutlar ve metadataları"
+        }
+    }
+
+    def forward(self, query: str):
+        return search_fm130_commands(query)
 
 class FM130SmolAgent:
     """FM130 komutları için SmolAgent implementasyonu"""
     
     def __init__(self):
         self.llm = get_llm()
+        # SmolAgents için uygun model nesnesi
+        self.model = OpenAIModel(model_id="gpt-4o-mini", api_key=OPENAI_API_KEY)
+
+        # Model tabanlı yönlendirme talimatı (tool kullanım kararı modele bırakılır)
+        self.system_prompt = (
+            "Senin adın Niki. Türkçe ve doğal yanıt ver.\n"
+            "- Eğer soru FM130/FMB/Teltonika cihaz komutları veya parametreleriyle ilgiliyse,\n"
+            "  yalnızca o zaman 'search_fm130_commands' aracını KULLAN ve sonucu açıkla, SMS formatı ver.\n"
+            "- Eğer soru cihaz-dışı/genel sohbet/gündelik konu ise HİÇBİR aracı KULLANMA,\n"
+            "  kısa ve doğal bir cevap ver.\n"
+            "- Araç kullanımına anahtar kelimeyle değil, sorunun niyetiyle karar ver."
+        )
         
-        # Tools tanımla
-        self.tools = [
-            Tool(
-                name="search_fm130_commands",
-                func=search_fm130_commands,
-                description="FM130 komutlarını vector store'da ara. Kullanıcı sorgusuna göre ilgili komutları bulur."
-            ),
-            Tool(
-                name="search_n430_parameters",
-                func=search_n430_parameters,
-                description="N430 parametre listesinden arama yapar. Parametre adı/açıklama/sms formatı üzerinden arar."
-            ),
-            Tool(
-                name="get_command_details",
-                func=get_command_details,
-                description="Belirli bir FM130 komutunun detaylarını getirir. Komut adı verilmelidir."
-            ),
-            Tool(
-                name="validate_parameters",
-                func=validate_parameters,
-                description="FM130 komut parametrelerini doğrular. Komut adı ve parametreler verilmelidir."
-            ),
-            Tool(
-                name="create_configuration_plan",
-                func=create_configuration_plan,
-                description="FM130 konfigürasyon planı oluşturur. Kullanıcı gereksinimleri verilmelidir."
-            ),
-            Tool(
-                name="troubleshoot_fm130_issue",
-                func=troubleshoot_fm130_issue,
-                description="FM130 sorunlarını teşhis eder ve çözüm önerir. Sorun açıklaması verilmelidir."
-            )
-        ]
+        # Yalnızca tek bir tool tanımla: RAG'den FM130 bilgilerini getirir
+        self.tools = [SearchFM130CommandsTool()]
         
         # SmolAgent oluştur
         self.agent = CodeAgent(
             tools=self.tools,
-            llm=self.llm,
+            model=self.model,
             name="FM130_Expert",
-            description="FM130 cihaz komutları ve konfigürasyon uzmanı"
+            description="FM130 cihaz komutları ve konfigürasyon uzmanı",
+            max_steps=10
         )
-    
-    def chat(self, message: str) -> str:
-        """
-        Kullanıcı mesajına yanıt ver
-        
+
+    def _format_history(self, chat_history: Any) -> str:
+        try:
+            if not chat_history:
+                return ""
+            parts = []
+            for user_turn, assistant_turn in chat_history[-5:]:
+                parts.append(f"Kullanıcı: {user_turn}\nAsistan: {assistant_turn}")
+            return "\n\n".join(parts)
+        except Exception:
+            return ""
+
+    def _should_use_tool(self, message: str) -> bool:
+        """Model tabanlı yönlendirme: Tool kullanılsın mı?"""
+        try:
+            judge_prompt = (
+                "Soru FM130/FMB/Teltonika CİHAZ komutları veya parametreleriyle ilgili mi?\n"
+                "Sadece 'YES' ya da 'NO' yaz. Başka bir şey yazma.\n\n"
+                f"Soru: {message}"
+            )
+            resp = self.llm.invoke(judge_prompt)
+            text = (resp.content if hasattr(resp, "content") else str(resp)).strip().lower()
+            return text.startswith("y")  # yes -> tool kullan
+        except Exception:
+            return False
+
+    def chat(self, message: str, chat_history: Any = None) -> str:
+        """    
         Args:
             message: Kullanıcı mesajı
             
@@ -69,8 +96,20 @@ class FM130SmolAgent:
             str: Agent yanıtı
         """
         try:
-            # Agent'ı çalıştır
+            # 1) Model tabanlı niyet sınıflandırma: Tool gerekli mi?
+            if not self._should_use_tool(message):
+                # Genel sohbet: doğal kısa yanıt, CodeAgent'a girme → gereksiz adımlar yok
+                natural_prompt = (
+                    "Kısa ve doğal bir Türkçe selamlama/yanıt ver. \n\n"
+                    f"Kullanıcı: {message}\nYanıt:"
+                )
+                resp = self.llm.invoke(natural_prompt)
+                return resp.content if hasattr(resp, "content") else str(resp)
+
+            # 2) Tool kullanılacaksa, CodeAgent'a sadece kullanıcı mesajını ver
+            # (CodeAgent kendi yönlendirme şablonunu kullanır)
             response = self.agent.run(message)
+            print("chat içinde response--->>>", response)
             return response
         except Exception as e:
             print(f"SmolAgent hatası: {e}")
@@ -81,6 +120,6 @@ class FM130SmolAgent:
         return {
             'name': 'FM130 SmolAgent',
             'type': 'smolagents',
-            'tools': [tool.name for tool in self.tools],
+            'tools': ['search_fm130_commands'],
             'description': 'FM130 komutları için hafif ve hızlı agent'
         } 

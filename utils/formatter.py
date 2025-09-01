@@ -5,13 +5,7 @@ def format_llm_response(response: str) -> str:
     """
     LLM yanıtını basit şekilde formatlar
     """
-    if not response:
-        return "❌ Yanıt alınamadı."
-    
-    # Sadece temel temizlik
-    formatted = response.strip()
-    
-    return formatted
+    return response.strip() if response else "❌ Yanıt alınamadı."
 
 def extract_sms_command(response: str) -> str:
     """
@@ -33,43 +27,31 @@ def extract_sms_command(response: str) -> str:
     return ""
 
 def create_structured_response(command_info: Dict[str, Any]) -> str:
-    """
-    Yapılandırılmış yanıt oluşturur
-    """
-    response_parts = []
-    
-    # Başlık
-    response_parts.append("## 📋 Komut Bilgisi")
-    
-    # Komut bilgileri
-    if command_info.get('name'):
-        response_parts.append(f"### 🔍 **Komut Adı:** {command_info['name']}")
-    
-    if command_info.get('description'):
-        response_parts.append(f"**Açıklama:** {command_info['description']}")
-    
-    # SMS formatı
-    if command_info.get('sms_format'):
-        response_parts.append("### 📱 **SMS Formatı**")
-        response_parts.append(f"```\n{command_info['sms_format']}\n```")
-    
-    # Kullanım açıklaması
-    if command_info.get('usage'):
-        response_parts.append("### 💡 **Kullanım Açıklaması**")
-        response_parts.append(command_info['usage'])
-    
-    # Parametre detayları
-    if command_info.get('parameters'):
-        response_parts.append("### ⚙️ **Parametre Detayları**")
-        for param in command_info['parameters']:
-            response_parts.append(f"- **{param['name']}:** {param['value']}")
-    
-    # Örnek kullanım
-    if command_info.get('example'):
-        response_parts.append("### 📝 **Örnek Kullanım**")
-        response_parts.append(f"```\n{command_info['example']}\n```")
-    
-    return "\n\n".join(response_parts)
+    """Yapılandırılmış yanıt oluşturur."""
+    parts = ["## 📋 Komut Bilgisi"]
+    name = command_info.get('name')
+    if name:
+        parts.append(f"### 🔍 **Komut Adı:** {name}")
+    desc = command_info.get('description')
+    if desc:
+        parts.append(f"**Açıklama:** {desc}")
+    sms = command_info.get('sms_format')
+    if sms:
+        parts.append("### 📱 **SMS Formatı**")
+        parts.append(f"```\n{sms}\n```")
+    usage = command_info.get('usage')
+    if usage:
+        parts.append("### 💡 **Kullanım Açıklaması**")
+        parts.append(usage)
+    params = command_info.get('parameters') or []
+    if params:
+        parts.append("### ⚙️ **Parametre Detayları**")
+        parts.extend([f"- **{p.get('name')}:** {p.get('value')}" for p in params])
+    example = command_info.get('example')
+    if example:
+        parts.append("### 📝 **Örnek Kullanım**")
+        parts.append(f"```\n{example}\n```")
+    return "\n\n".join(parts)
 
 def format_error_response(error_msg: str) -> str:
     """

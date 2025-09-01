@@ -30,14 +30,15 @@ class AgentFactory:
                 self.llm = get_llm()
             
             def chat(self, message: str, chat_history: Any = None) -> str:
-                """Basit fallback yanıt"""
+                print("chat içinde message--->>>", message)
+                print("chat içinde chat_history--->>>", chat_history)
+                # Basit fallback yanıt
                 try:
                     prompt = f"""
                     FM130 cihazı hakkında soru: {message}
                     
-                    Lütfen kullanıcıya yardımcı ol. Eğer FM130 komutları hakkında bilgin yoksa, 
-                    bunu belirt ve genel yardım öner.
-
+                    Context kullanılamıyor (fallback modu)
+                    
                     Chat geçmişi:
                     {chat_history}
                     """

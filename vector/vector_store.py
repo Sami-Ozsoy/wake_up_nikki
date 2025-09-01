@@ -1,6 +1,14 @@
 import os
+# Ensure OpenMP duplicate runtime workaround is set before importing FAISS
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
 from typing import List
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+try:
+    # Newer import path
+    from langchain_text_splitters import RecursiveCharacterTextSplitter
+except Exception:  # pragma: no cover
+    # Fallback for older langchain versions
+    from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_community.vectorstores import FAISS
 from langchain_openai import OpenAIEmbeddings

@@ -478,7 +478,7 @@
                     const copyBtn = document.createElement('button');
                     copyBtn.className = 'copy-btn';
                     copyBtn.innerHTML = '<i class="fas fa-copy"></i>';
-                    copyBtn.onclick = () => copyToClipboard(codeBlock.textContent);
+                    copyBtn.onclick = (e) => copyToClipboard(codeBlock.textContent, e.currentTarget);
                     codeBlock.appendChild(copyBtn);
                 });
             }
@@ -490,9 +490,9 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         
-        function copyToClipboard(text) {
+        function copyToClipboard(text, btnEl) {
             navigator.clipboard.writeText(text).then(() => {
-                const btn = event.target.closest('.copy-btn');
+                const btn = btnEl || (window.event ? window.event.target.closest('.copy-btn') : null);
                 const originalHTML = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-check"></i>';
                 btn.style.background = '#10a37f';

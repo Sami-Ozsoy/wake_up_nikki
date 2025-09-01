@@ -1,5 +1,4 @@
 from typing import List, Dict, Any
-from vector.vector_store import VectorStore
 import re
 
 SYNONYMS_TR = {
@@ -14,8 +13,16 @@ def expand_query(query: str) -> List[str]:
     alts = {w for t in tokens for w in SYNONYMS_TR.get(t, [])}
     return [query] + [f"{query} {w}" for w in sorted(alts)]
 
-# Vector store instance
-_vector_store = VectorStore()
+# Vector store lazy loader (FAISS importunu geciktir)
+_vector_store = None
+
+def get_vector_store():
+    global _vector_store
+    if _vector_store is None:
+        # Importu burada yaparak OpenMP/FAISS başlatmayı ilk kullanım anına erteliyoruz
+        from vector.vector_store import VectorStore  # type: ignore
+        _vector_store = VectorStore()
+    return _vector_store
 
 def search_fm130_commands(query: str) -> List[Dict[str, Any]]:
     """
@@ -28,20 +35,20 @@ def search_fm130_commands(query: str) -> List[Dict[str, Any]]:
         List[Dict]: Bulunan komutlar ve metadata'ları
     """
     try:
-        # Vector search yap
-        docs_with_scores = _vector_store.similarity_search_with_score(query, k=5)
+        # Vector search yap (lazy init)
+        vs = get_vector_store()
+        docs_with_scores = vs.similarity_search_with_score(query, k=5)
         
         # Sonuçları formatla
         results = []
-        for doc, score in docs_with_scores:
-            if score > 0.6:  # Sadece yüksek kaliteli sonuçları al
-                results.append({
-                    'content': doc.page_content,
-                    'metadata': doc.metadata,
-                    'score': score,
-                    'source': doc.metadata.get('source', 'Unknown')
-                })
-        
+        for doc, score in docs_with_scores:# Sadece yüksek kaliteli sonuçları al
+            results.append({
+                'content': doc.page_content,
+                'metadata': doc.metadata,
+                'score': score,
+                'source': doc.metadata.get('source', 'Unknown')
+            })
+        print("results--->>>", results)
         return results
     except Exception as e:
         print(f"Komut arama hatası: {e}")
@@ -259,6 +266,8 @@ def search_n430_parameters(query: str) -> List[Dict[str, Any]]:
     N430 parametre listesinden arama yap (hibrit retriever + cihaz filtresi).
     """
     try:
+        # Yerel import: ağır bağımlılıkları sadece ihtiyaç halinde yükle
+        from vector.vector_store import VectorStore  # type: ignore
         vs = VectorStore()
         retriever = getattr(vs, "get_hybrid_retriever", vs.get_retriever)()
         queries = expand_query(query)

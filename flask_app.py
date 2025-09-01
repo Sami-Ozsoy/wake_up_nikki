@@ -1,4 +1,7 @@
 import os
+# OpenMP duplicate runtime workaround for macOS (FAISS et al.)
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
 from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit
 import time
@@ -60,9 +63,12 @@ def chat():
     data = request.get_json()
     message = data.get('message', '')
     agent_type = data.get('agent_type', 'smol')  # Varsayılan SmolAgent
-    session_id = session.get('session_id', str(time.time()))
+    session_id = session.get('session_id')
+    if not session_id:
+        session_id = str(time.time())
+        session['session_id'] = session_id
     
-    if not session_id in chat_histories:
+    if session_id not in chat_histories:
         chat_histories[session_id] = []
     
     if not message.strip():
@@ -75,7 +81,7 @@ def chat():
         
         response = get_response(message, session_id, agent_type)
         
-        # Geçmişe ekle
+        # Geçmişe ekle (biriktir)
         chat_histories[session_id].append((message, response))
         
         return jsonify({
