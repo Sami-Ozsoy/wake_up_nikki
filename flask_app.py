@@ -3,7 +3,6 @@ from flask import Flask, render_template, request, jsonify, session
 from flask_socketio import SocketIO, emit
 import time
 
-from config import OPENAI_API_KEY, NEO4J_URI
 from utils.helpers import get_llm
 from utils.loaders import load_prompt
 from vector.vector_store import VectorStore
@@ -13,7 +12,7 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
 from langchain.memory import ConversationBufferMemory
-from langchain_core.messages import HumanMessage, AIMessage
+ 
 
 # Proje kök dizinini bul
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -25,8 +24,8 @@ app = Flask(__name__,
 app.config['SECRET_KEY'] = 'niki-secret-key-2024'
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Chat geçmişi (session bazlı)
-chat_histories = {}
+# Bellek (session bazlı)
+session_memories = {}
 
 # Prompt hazırla
 prompt_text = load_prompt("prompts/main_prompt.txt")
@@ -35,6 +34,14 @@ prompt = ChatPromptTemplate.from_template(prompt_text)
 # LLM ve retriever ayarları
 llm = get_llm()
 vector_store = VectorStore()
+
+def get_memory(session_id: str) -> ConversationBufferMemory:
+    """Session'a bağlı bellek nesnesini döndür (yoksa oluştur)."""
+    mem = session_memories.get(session_id)
+    if mem is None:
+        mem = ConversationBufferMemory(memory_key="history", input_key="question", return_messages=True)
+        session_memories[session_id] = mem
+    return mem
 
 def format_input_with_vector_context(user_input, session_id):
     """Vector context ile input formatla"""
@@ -62,8 +69,19 @@ def format_input_with_vector_context(user_input, session_id):
         
         docs_content = "\n\n".join([doc.page_content for doc in high_quality_docs])
 
-        chat_history = chat_histories.get(session_id, [])
-        chat_context = "\n".join([f"Kullanıcı: {q}\nAsistan: {a}" for q, a in chat_history])
+        mem = get_memory(session_id)
+        # Bellekten sohbet geçmişini oku
+        messages = getattr(mem, "chat_memory").messages if hasattr(mem, "chat_memory") else []
+        formatted_pairs = []
+        for m in messages:
+            # LangChain mesaj tiplerini basit metne çevir
+            cls = m.__class__.__name__.lower()
+            if hasattr(m, 'content'):
+                if 'human' in cls:
+                    formatted_pairs.append(f"Kullanıcı: {m.content}")
+                elif 'ai' in cls:
+                    formatted_pairs.append(f"Asistan: {m.content}")
+        chat_context = "\n".join(formatted_pairs)
 
         full_context = f"{docs_content}\n\n{chat_context}\nKullanıcı: {user_input}"
         return {
@@ -106,9 +124,18 @@ def format_chat_history(input_data):
             
         docs_content = "\n\n".join([doc.page_content for doc in high_quality_docs])
 
-        # Chat history al
-        chat_history = chat_histories.get(session_id, [])
-        chat_context = "\n".join([f"Kullanıcı: {q}\nAsistan: {a}" for q, a in chat_history])
+        # Chat history al (ConversationBufferMemory)
+        mem = get_memory(session_id)
+        messages = getattr(mem, "chat_memory").messages if hasattr(mem, "chat_memory") else []
+        formatted_pairs = []
+        for m in messages:
+            cls = m.__class__.__name__.lower()
+            if hasattr(m, 'content'):
+                if 'human' in cls:
+                    formatted_pairs.append(f"Kullanıcı: {m.content}")
+                elif 'ai' in cls:
+                    formatted_pairs.append(f"Asistan: {m.content}")
+        chat_context = "\n".join(formatted_pairs)
 
         # Tam context oluştur
         full_context = f"{docs_content}\n\n{chat_context}\nKullanıcı: {user_input}"
@@ -153,6 +180,13 @@ def get_response(user_input, session_id):
         if len(formatted_response.strip()) < 50 or "bilgi bulunamadı" in formatted_response.lower():
             return format_no_info_response()
         
+        # Belleğe yaz
+        mem = get_memory(session_id)
+        try:
+            mem.save_context({"question": user_input}, {"answer": formatted_response})
+        except Exception:
+            pass
+
         return formatted_response
     except Exception as e:
         print(f"Yanıt alma hatası: {e}")
@@ -164,24 +198,31 @@ def index():
 
 @app.route('/api/chat', methods=['POST'])
 def chat():
-    data = request.get_json()
-    message = data.get('message', '')
-    session_id = session.get('session_id', str(time.time()))
-    
-    if not session_id in chat_histories:
-        chat_histories[session_id] = []
-    
-    if not message.strip():
+    data = request.get_json() or {}
+    message = (data.get('message') or '').strip()
+    client_session_id = data.get('session_id')
+
+    # İstek ile session_id geldiyse session'a yaz
+    if client_session_id:
+        session['session_id'] = client_session_id
+
+    # Session'da yoksa bir kez üret ve kaydet
+    if 'session_id' not in session:
+        session['session_id'] = str(time.time())
+
+    session_id = session['session_id']
+
+    # Bellek hazırla
+    _ = get_memory(session_id)
+
+    if not message:
         return jsonify({'error': 'Boş mesaj gönderilemez'})
-    
+
     try:
         print(f"----->Kullanıcı mesajı: {message}")
         print(f"----->Session ID: {session_id}")
         response = get_response(message, session_id)
-        
-        # Geçmişe ekle
-        chat_histories[session_id].append((message, response))
-        
+
         return jsonify({
             'response': response,
             'session_id': session_id,
@@ -192,9 +233,10 @@ def chat():
 
 @app.route('/api/clear', methods=['POST'])
 def clear_history():
-    session_id = session.get('session_id', str(time.time()))
-    if session_id in chat_histories:
-        chat_histories[session_id] = []
+    session_id = session.get('session_id')
+    if not session_id:
+        return jsonify({'success': True})
+    session_memories[session_id] = ConversationBufferMemory(memory_key="history", input_key="question", return_messages=True)
     return jsonify({'success': True})
 
 @app.route('/api/examples', methods=['GET'])
@@ -217,8 +259,8 @@ def handle_connect():
 @socketio.on('disconnect')
 def handle_disconnect():
     session_id = session.get('session_id')
-    if session_id and session_id in chat_histories:
-        del chat_histories[session_id]
+    if session_id and session_id in session_memories:
+        del session_memories[session_id]
 
 if __name__ == '__main__':
     print("�� Flask uygulaması başlatılıyor...")
