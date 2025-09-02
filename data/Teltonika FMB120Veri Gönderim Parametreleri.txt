@@ -11,7 +11,7 @@ Amaçlar:
 
 ÖRNEKLER:
 --------------------------------------------------
-1. STOP MODE (HAREKETSİZ HAL)
+1. STOP MODE (HAREKETSİZ)
 --------------------------------------------------
 
 Amaç: Home GSM ağına bağlıyken HAREKETSİZ modda 600 saniyede (10 dakika) bir kayıt ve gönderim
@@ -27,10 +27,10 @@ setparam 10000:3600;10004:1;10005:120
 
 
 --------------------------------------------------
-3. HOME NETWORK MOVE MODE (HAREKETLİ HAL)
+3. HOME NETWORK MOVE MODE (HAREKETLİ)
 --------------------------------------------------
 
-Amaç: Home GSM ağına bağlıyken hareketli modda sadece süreye dayalı olarak veri gönderimi (30 saniye)
+Amaç: Home GSM ağına bağlıyken HAREKETLİ modda sadece süreye dayalı olarak veri gönderimi (30 saniye)
 
 
 Parametreler:
@@ -45,10 +45,10 @@ Parametreler:
 setparam 10050:30;10051:0;10052:0;10053:0;10054:1;10055:30
 
 --------------------------------------------------
-4. ROAMING NETWORK STOP MODE (HAREKETSİZ HAL)
+4. ROAMING NETWORK STOP MODE (HAREKETSİZ)
 --------------------------------------------------
 
-Amaç: Roaming durumunda araç durağanken 600 saniyede bir veri gönderimi
+Amaç: Roaming durumunda araç HAREKETSİZ modda 600 saniyede bir veri gönderimi
 
 Parametreler:
 - 10100 = 600         // Min Period
@@ -59,10 +59,10 @@ Parametreler:
 setparam 10100:600;10104:1;10105:600
 
 --------------------------------------------------
-4. ROAMING NETWORK MOVE MODE (HAREKETLİ HAL)
+4. ROAMING NETWORK MOVE MODE (HAREKETLİ)
 --------------------------------------------------
 
-Amaç: Roaming durumunda hareketli modda sadece süreye dayalı olarak veri gönderimi (30 saniye)
+Amaç: Roaming durumunda HAREKETLİ modda sadece süreye dayalı olarak veri gönderimi (30 saniye)
 
 Parametreler:
 - 10150 = 30          // Min Period
@@ -77,10 +77,10 @@ setparam 10150:30;10151:0;10152:0;10153:0;10154:1;10155:30
 
 
 --------------------------------------------------
-6. UNKNOWN NETWORK STOP MODE (HAREKETSİZ HAL)
+6. UNKNOWN NETWORK STOP MODE (HAREKETSİZ)
 --------------------------------------------------
 
-Amaç: GSM ağı bilinmiyorken araç durağanken 600 saniyede bir veri gönderimi
+Amaç: GSM ağı bilinmiyorken araç HAREKETSİZ modda 600 saniyede bir veri gönderimi
 
 Parametreler:
 - 10200 = 600         // Min Period
@@ -91,10 +91,10 @@ Parametreler:
 setparam 10200:600;10204:1;10205:600
 
 --------------------------------------------------
-5. UNKNOWN NETWORK MOVE MODE (HAREKETLİ HAL)
+5. UNKNOWN NETWORK MOVE MODE (HAREKETLİ)
 --------------------------------------------------
 
-Amaç: GSM ağı bilinmiyorsa hareketli modda 30 saniyede bir veri gönderimi
+Amaç: GSM ağı bilinmiyorsa HAREKETLİ modda 30 saniyede bir veri gönderimi
 
 Parametreler:
 - 10250 = 30          // Min Period

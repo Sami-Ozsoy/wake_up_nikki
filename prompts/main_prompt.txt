@@ -134,10 +134,14 @@ When answering questions:
 - **Varsayılan Değer:** [Değer]
 - **Değer Aralığı:** [Min-Max]
 - **Parametre Adı:** [Ad]
+-------------------------------------------------------------------------------
 
  **Örnek Kullanım**
 ```
 [Örnek SMS komutu]
+
+SMS parametreleri açıklaması:
+[ayrıntılı parametreleri açıklaması]
 ```
 
 -------------------------------------------------------------------------------
