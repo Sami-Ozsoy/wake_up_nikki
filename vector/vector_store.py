@@ -15,7 +15,7 @@ class VectorStore:
         self.embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
         # Daha iyi chunking stratejisi
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=500,  # Daha küçük chunk'lar
+            chunk_size=1000,  # Daha küçük chunk'lar
             chunk_overlap=200,  # Daha az overlap
             separators=["\n\n", "\n", ". ", "! ", "? ", " ", ""]  # Daha iyi separator'lar
         )

@@ -177,8 +177,12 @@
             border-radius: 12px;
             padding: 12px 14px;
             display: inline-block;
-            max-width: 75%;
-            flex: 0;
+            flex: 0 1 auto;
+            width: -moz-fit-content;
+            width: fit-content;
+            max-width: 100%;
+            white-space: pre-wrap;
+            word-break: break-word;
             box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
         }
         
@@ -408,8 +412,15 @@
 <body>
     <div class="chat-container">
         <div class="sidebar">
+            <div class="chat-header">
+                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 0px;">
+                    <img src="{{ url_for('static', filename='niki.png') }}" alt="Niki Logo" style="width: 48px; height: 48px; border-radius: 50%;">
+                    <h1>Niki</h1>
+                </div>
+                <p>FM130 cihazı için akıllı komut yardımcısı</p>
+            </div>
             
-            <button class="new-chat-btn" onclick="clearHistory()">
+            <button class="new-chat-btn mt-3" onclick="clearHistory()">
                 <i class="fas fa-plus"></i> Yeni Sohbet
             </button>
             
@@ -424,21 +435,14 @@
         </div>
         
         <div class="main-content">
-            <div class="chat-header">
-                <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px;">
-                    <img src="{{ url_for('static', filename='niki.png') }}" alt="Niki Logo" style="width: 48px; height: 48px; border-radius: 50%;">
-                    <h1>Niki</h1>
-                </div>
-                <p>FM130 cihazı için akıllı komut yardımcısı</p>
-            </div>
-            
+        
             <div class="messages-container" id="chatMessages">
                 <div class="message assistant">
                     <div class="message-content">
                         <h4>Merhaba!</h4>
                         <p>Ben Niki, FM130 cihazı komutları konusunda size yardımcı olabilirim. 
                         Hangi konuda bilgi almak istiyorsunuz?</p>
-                        <p><strong>Örnek:</strong> "Batarya durumunu nasıl kontrol ederim?"</p>
+                        <p><strong>Örnek:</strong> "Cihazdan konum verisi nasıl alırım?"</p>
                     </div>
                 </div>
             </div>
