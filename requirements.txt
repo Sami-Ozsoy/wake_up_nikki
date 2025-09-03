@@ -15,3 +15,5 @@ streamlit
 gradio
 flask
 flask-socketio
+langchain-openai
+langgraph

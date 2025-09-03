@@ -13,11 +13,11 @@ class VectorStore:
     def __init__(self, index_path: str = "vector/index"):
         self.index_path = index_path
         self.embeddings = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
-        # Daha iyi chunking stratejisi
+        
         self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=1000,  # Daha küçük chunk'lar
-            chunk_overlap=200,  # Daha az overlap
-            separators=["\n\n", "\n", ". ", "! ", "? ", " ", ""]  # Daha iyi separator'lar
+            chunk_size=1000,  
+            chunk_overlap=200,  
+            separators=["\n\n", "\n", ". ", "! ", "? ", " ", ""] 
         )
     
     def load_documents(self, data_dir: str = "data") -> List:

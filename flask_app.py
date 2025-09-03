@@ -12,6 +12,7 @@ from langchain.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
 from langchain.memory import ConversationBufferMemory
+from agents.graph import invoke_graph
  
 
 # Proje kök dizinini bul
@@ -161,26 +162,43 @@ chain = (
 def get_response(user_input, session_id):
     """Kullanıcı mesajına yanıt ver"""
     try:
-        # Context hazırla
+        USE_GRAPH = True
+        if USE_GRAPH:
+            # Geçmişi hazırla
+            mem = get_memory(session_id)
+            messages = getattr(mem, "chat_memory").messages if hasattr(mem, "chat_memory") else []
+            formatted_pairs = []
+            for m in messages:
+                cls = m.__class__.__name__.lower()
+                if hasattr(m, 'content'):
+                    if 'human' in cls:
+                        formatted_pairs.append(f"Kullanıcı: {m.content}")
+                    elif 'ai' in cls:
+                        formatted_pairs.append(f"Asistan: {m.content}")
+            history_text = "\n".join(formatted_pairs)
+
+            ai_answer = invoke_graph(user_input, history_text=history_text)
+
+            # Belleğe yazmayı sürdür
+            try:
+                mem.save_context({"question": user_input}, {"answer": ai_answer})
+            except Exception as e:
+                print(f"Bellek hatası: {e}")
+                pass
+
+            return format_llm_response(ai_answer)
+
+        # ... (mevcut fallback zinciri olduğu gibi kalsın)
+
         context_data = format_input_with_vector_context(user_input, session_id)
         print(f"----->Context data length: {len(context_data['context'])}")
-        # Prompt'u formatla
         formatted_prompt = prompt.format(**context_data)
-        
-        # LLM'den yanıt al
         response = llm.invoke(formatted_prompt)
-        
-        # Yanıtı al
         response_content = response.content if hasattr(response, 'content') else str(response)
-        
-        # Yanıtı formatla
         formatted_response = format_llm_response(response_content)
-        
-        # Eğer yanıt çok kısaysa veya hata içeriyorsa
         if len(formatted_response.strip()) < 50 or "bilgi bulunamadı" in formatted_response.lower():
             return format_no_info_response()
-        
-        # Belleğe yaz
+
         mem = get_memory(session_id)
         try:
             mem.save_context({"question": user_input}, {"answer": formatted_response})
