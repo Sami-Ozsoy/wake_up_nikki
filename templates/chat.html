@@ -420,7 +420,7 @@
                 <p>FM130 cihazı için akıllı komut yardımcısı</p>
             </div>
             
-            <button class="new-chat-btn mt-3" onclick="clearHistory()">
+            <button class="new-chat-btn mt-3" onclick="newChat()">
                 <i class="fas fa-plus"></i> Yeni Sohbet
             </button>
             
@@ -431,6 +431,7 @@
                 <h5>📊 İstatistikler</h5>
                 <p>Toplam Sohbet: <span id="chatCount">0</span></p>
                 <p>Son Güncelleme: <span id="lastUpdate">-</span></p>
+                <p>Session ID: <code id="sessionId"> {{ session_id }}</code></p>
             </div>
         </div>
         
@@ -544,13 +545,14 @@
             input.style.height = 'auto';
             
             document.getElementById('loading').classList.add('show');
-            
+
+            const sessionId = document.getElementById('sessionId').textContent.trim();
             fetch('/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ message: message })
+                body: JSON.stringify({ message: message, session_id: sessionId })
             })
             .then(response => response.json())
             .then(data => {
@@ -613,6 +615,44 @@
                 });
             });
         }
+        
+        function newChat() {
+            const newId = (crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now());
+            window.location.href = `/chat/${newId}`;
+        }
+        
+        function loadHistory(sessionId) {
+            if (!sessionId) return;
+            fetch(`/api/history?session_id=${encodeURIComponent(sessionId)}`)
+            .then(r => r.json())
+            .then(data => {
+                (data.messages || []).forEach(msg => {
+                    addMessage(msg.content || '', msg.role === 'user');
+                });
+            });
+        }
+        
+        function updateStats() {
+            document.getElementById('chatCount').textContent = chatCount;
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+        }
+        
+        // Enter tuşu ile mesaj gönderme
+        document.getElementById('messageInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', function() {
+            loadExamples();
+            updateStats();
+            const sid = document.getElementById('sessionId').textContent.trim();
+            loadHistory(sid);
+            document.getElementById('messageInput').focus();
+        });
         
         function updateStats() {
             document.getElementById('chatCount').textContent = chatCount;
