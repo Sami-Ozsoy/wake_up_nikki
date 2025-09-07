@@ -1,0 +1,124 @@
+Teltonika FMB130 — Veri Gönderim Parametreleri
+=============================================
+
+Bu doküman, Teltonika FMB130 GPS cihazında araç hareketliyken veya durağanken ne zaman ve hangi koşullarda veri gönderileceğini belirleyen parametreleri açıklar. Ayarlar SMS ile, FMB Configurator ile veya FOTA üzerinden yapılabilir.
+
+Amaçlar:
+- Araç durağan haldeyken 10 dakikada bir konum gönderimi
+- Araç hareketliyken 30 saniyede bir konum gönderimi
+- Home, Roaming ve Unknown GSM durumlarına göre ayrı ayrı yapılandırma
+- format: <param_no> = <değer>  // <anlamı>
+
+ÖRNEKLER:
+--------------------------------------------------
+1. STOP MODE (HAREKETSİZ)
+--------------------------------------------------
+
+Amaç: Home GSM ağına bağlıyken HAREKETSİZ modda 600 saniyede (10 dakika) bir kayıt ve gönderim
+
+Parametreler:
+- 10000 = 3600         / Min Period (saniye)
+- 10004 = 1           / Min Saved Records
+- 10005 = 120         / Send Period (saniye)
+
+
+örnek sms komutu:
+setparam 10000:3600;10004:1;10005:120
+
+
+--------------------------------------------------
+3. HOME NETWORK MOVE MODE (HAREKETLİ)
+--------------------------------------------------
+
+Amaç: Home GSM ağına bağlıyken HAREKETLİ modda sadece süreye dayalı olarak veri gönderimi (30 saniye)
+
+
+Parametreler:
+- 10050 = 30          // Min Period (saniye)
+- 10051 = 0           // Min Distance (metre)
+- 10052 = 0           // Min Angle (derece)
+- 10053 = 0           // Min Speed Delta (km/h)
+- 10054 = 1           // Min Saved Records
+- 10055 = 30          // Send Period (saniye)
+
+örnek sms komutu:
+setparam 10050:30;10051:0;10052:0;10053:0;10054:1;10055:30
+
+--------------------------------------------------
+4. ROAMING NETWORK STOP MODE (HAREKETSİZ)
+--------------------------------------------------
+
+Amaç: Roaming durumunda araç HAREKETSİZ modda 600 saniyede bir veri gönderimi
+
+Parametreler:
+- 10100 = 600         // Min Period
+- 10104 = 1           // Min Saved Records
+- 10105 = 600         // Send Period
+
+örnek sms komutu:
+setparam 10100:600;10104:1;10105:600
+
+--------------------------------------------------
+4. ROAMING NETWORK MOVE MODE (HAREKETLİ)
+--------------------------------------------------
+
+Amaç: Roaming durumunda HAREKETLİ modda sadece süreye dayalı olarak veri gönderimi (30 saniye)
+
+Parametreler:
+- 10150 = 30          // Min Period
+- 10151 = 0           // Min Distance
+- 10152 = 0           // Min Angle
+- 10153 = 0           // Min Speed Delta
+- 10154 = 1           // Min Saved Records
+- 10155 = 30          // Send Period
+
+örnek sms komutu:
+setparam 10150:30;10151:0;10152:0;10153:0;10154:1;10155:30
+
+
+--------------------------------------------------
+6. UNKNOWN NETWORK STOP MODE (HAREKETSİZ)
+--------------------------------------------------
+
+Amaç: GSM ağı bilinmiyorken araç HAREKETSİZ modda 600 saniyede bir veri gönderimi
+
+Parametreler:
+- 10200 = 600         // Min Period
+- 10204 = 1           // Min Saved Records
+- 10205 = 600         // Send Period
+
+örnek sms komutu:
+setparam 10200:600;10204:1;10205:600
+
+--------------------------------------------------
+5. UNKNOWN NETWORK MOVE MODE (HAREKETLİ)
+--------------------------------------------------
+
+Amaç: GSM ağı bilinmiyorsa HAREKETLİ modda 30 saniyede bir veri gönderimi
+
+Parametreler:
+- 10250 = 30          // Min Period
+- 10251 = 0           // Min Distance
+- 10252 = 0           // Min Angle
+- 10253 = 0           // Min Speed Delta
+- 10254 = 1           // Min Saved Records
+- 10255 = 30          // Send Period
+
+örnek sms komutu:
+setparam 10250:30;10251:0;10252:0;10253:0;10254:1;10255:30
+
+--------------------------------------------------
+6. TOPLU AYAR KOMUTU
+--------------------------------------------------
+
+Tüm ayarları tek bir SMS ile göndermek için:
+
+setparam 10000:600;10004:1;10005:1;10001:30;10006:1;10007:1;10050:30;10051:0;10052:0;10053:0;10054:1;10055:30;10150:30;10151:0;10152:0;10153:0;10154:1;10155:30;10250:30;10251:0;10252:0;10253:0;10254:1;10255:30
+
+--------------------------------------------------
+7. NOTLAR
+--------------------------------------------------
+
+- Home / Roaming / Unknown parametreleri GSM şebekesi durumuna göre otomatik olarak devreye girer.
+- Bu yapılandırma ile cihaz, hem hareketli hem durağan durumlarda, ağ koşullarına bağlı olarak istenen sıklıkta konum verisi üretir ve gönderir.
+- Tüm süreler saniye cinsindendir.

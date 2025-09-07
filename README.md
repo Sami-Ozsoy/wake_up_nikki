@@ -1,264 +1,227 @@
-# 🤖 Niki - FM130 Komut Yardımcısı
+# 🤖 Niki - FMB130 Command Assistant
 
-FM130 cihazı komutları konusunda size yardımcı olan RAG (Retrieval-Augmented Generation) tabanlı akıllı asistan.
+A Retrieval-Augmented Generation (RAG) powered assistant that helps you work with Teltonika FMB130 device commands and parameters.
 
-## 📋 Özellikler
+## 📋 Features
 
-- **RAG Tabanlı Yanıtlar**: FM130 komut referanslarından akıllı bilgi çıkarımı
-- **Çoklu Web Arayüzü**: Flask, Streamlit ve Gradio seçenekleri
-- **ChatGPT Benzeri UI**: Modern ve kullanıcı dostu arayüz
-- **Markdown Desteği**: Zengin formatlanmış yanıtlar
-- **Örnek Sorular**: Hızlı başlangıç için önceden hazırlanmış sorular
-- **Session Yönetimi**: Kullanıcı bazlı sohbet geçmişi
+- **RAG-based answers**: Extracts reliable information from your local FMB docs (PDF/TXT)
+- **Agentic routing (LangGraph)**: Classifies intent and routes to FMB specialist or a general assistant
+- **Modern web UI (Flask)**: ChatGPT-like interface with Markdown rendering and copy buttons
+- **Streamlit alternative UI**: Simple, fast to run, sidebar with sample prompts
+- **Session memory**: Per-session conversation history
+- **FAISS vector index**: Fast similarity search over documents
 
-## 🏗️ Proje Yapısı
+## 🏗️ Project Structure
 
 ```
 wake_up_nikki/
-├── flask_app.py              # Flask uygulaması
-├── main.py                   # Streamlit uygulaması
-├── gradio_app.py             # Gradio uygulaması
-├── config.py                 # Konfigürasyon ayarları
-├── utils/                    # Yardımcı fonksiyonlar
-│   ├── helpers.py           # LLM entegrasyonu
-│   ├── loaders.py           # Prompt yükleme
-│   └── formatter.py         # Yanıt formatlama
-├── vector/                   # Vector store yönetimi
-│   └── vector_store.py      # Vector store sınıfı
-├── templates/                # HTML şablonları
-│   └── chat.html           # Flask chat arayüzü
-├── assets/                  # Statik dosyalar
-│   └── niki.png           # Niki logosu
-├── data/                    # Veri dosyaları
-├── prompts/                 # Prompt şablonları
-│   └── main_prompt.txt     # Ana prompt
-├── vector/                  # Vector index dosyaları
-├── requirements.txt         # Python bağımlılıkları
-└── README.md               # Bu dosya
+├── flask_app.py               # Flask web app (recommended UI)
+├── main.py                    # Streamlit app (alternative UI)
+├── config.py                  # Environment configuration
+├── agents/
+│   └── graph.py              # LangGraph-based routing + tools
+├── utils/
+│   ├── helpers.py            # LLM factory (OpenAI by default)
+│   ├── loaders.py            # Prompt loader
+│   └── formatter.py          # Output formatting helpers
+├── vector/
+│   ├── vector_store.py       # FAISS-backed vector store
+│   └── index/                # Saved FAISS index (faiss + pkl)
+├── templates/
+│   └── chat.html             # Flask chat UI
+├── assets/                   # Static assets
+│   └── niki.png              # Logo
+├── prompts/
+│   └── main_prompt.txt       # System prompt template
+├── data/                     # Your source docs (PDF/TXT)
+├── rebuild_index.py          # Script to (re)build vector index
+├── requirements.txt          # Python dependencies
+└── README.md                 # This file
 ```
 
-## 🚀 Kurulum
+## 🚀 Getting Started
 
-### 1. Gereksinimler
+### 1) Prerequisites
 
-- Python 3.8+
-- OpenAI API Key
-- FM130 komut referans dosyaları
+- Python 3.9+ (Dockerfile uses 3.9-slim)
+- An OpenAI API key
+- FMB130 reference documents (PDF/TXT) to place under `data/`
 
-### 2. Kurulum Adımları
+### 2) Installation
 
 ```bash
-# Repository'yi klonlayın
+# Clone the repo
 git clone <repository-url>
 cd wake_up_nikki
 
-# Virtual environment oluşturun
+# Create and activate a virtual environment
 python -m venv .venv
-
-# Virtual environment'ı aktifleştirin
-# Windows:
+# Windows
 .venv\Scripts\activate
-# macOS/Linux:
+# macOS/Linux
 source .venv/bin/activate
 
-# Bağımlılıkları yükleyin
+# Install dependencies
 pip install -r requirements.txt
 
-# Environment değişkenlerini ayarlayın
-cp .env.example .env
-# .env dosyasını düzenleyin ve OPENAI_API_KEY ekleyin
+# Set environment variables (create a .env file)
+echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
 ```
 
-### 3. Veri Hazırlama
+### 3) Prepare Data and Build the Index
+
+Put your FMB130 docs into the `data/` folder, for example:
+
+- `N430 Komut Listesi.pdf`
+- `N430 Parametre Listesi.pdf`
+- `Directories.txt`
+
+Then build the FAISS index:
 
 ```bash
-# FM130 komut referanslarını data/ klasörüne kopyalayın
-# Örnek dosyalar:
-# - FM130_Command_Reference.pdf
-# - Directories.txt
-# - FM130_Parameter_List.txt
-
-# Vector index'i oluşturun
-python -c "
-from vector.vector_store import VectorStore
-store = VectorStore()
-docs = store.load_documents('data')
-split_docs = store.split_documents(docs)
-store.create_index(split_docs)
-print('Vector index oluşturuldu!')
-"
+python rebuild_index.py
 ```
 
-## 🎯 Kullanım
+You should see logs indicating documents were loaded and an index was saved under `vector/index/`.
 
-### Flask Uygulaması (Önerilen)
+## 🎯 Usage
+
+### Flask App (recommended)
 
 ```bash
 python flask_app.py
 ```
 
-**Özellikler:**
-- ChatGPT benzeri modern arayüz
-- Real-time WebSocket desteği
-- Markdown render desteği
-- Kod kopyalama özelliği
-- Responsive tasarım
+Open `http://localhost:5000` in your browser.
 
-### Streamlit Uygulaması
+Highlights:
+- ChatGPT-like modern UI
+- Markdown rendering with code copy buttons
+- Session-based history
+
+### Streamlit App (alternative)
 
 ```bash
 streamlit run main.py
 ```
 
-**Özellikler:**
-- Kolay kurulum ve kullanım
-- Sidebar ile ayarlar
-- Örnek soru butonları
-- İstatistik paneli
+Open `http://localhost:8501` in your browser.
 
-### Gradio Uygulaması
+Sidebar includes sample questions, temperature, and model selectors.
 
-```bash
-python gradio_app.py
-```
+## 🔧 Configuration
 
-**Özellikler:**
-- Hızlı prototipleme
-- Otomatik API oluşturma
-- Kolay paylaşım
-
-## 🔧 Konfigürasyon
-
-### Environment Değişkenleri
+### Environment Variables (.env)
 
 ```bash
-# .env dosyası
 OPENAI_API_KEY=your_openai_api_key_here
-NEO4J_URI=bolt://localhost:7687  # Opsiyonel
-NEO4J_USERNAME=neo4j            # Opsiyonel
-NEO4J_PASSWORD=password         # Opsiyonel
+
+# Optional (not required by default flow)
+NEO4J_URI=bolt://localhost:7687
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=password
+
+# Optional: if you plan to enable/replace web search logic
+# GOOGLE_SEARCH_API_KEY=...
+# GOOGLE_SEARCH_ENGINE_ID=...
 ```
 
-### Prompt Özelleştirme
+### Customizing the Prompt
 
-`prompts/main_prompt.txt` dosyasını düzenleyerek AI asistanının davranışını özelleştirebilirsiniz.
+Edit `prompts/main_prompt.txt` to tune the assistant’s behavior and response style.
 
-## 📊 Arayüz Karşılaştırması
+## 💡 Example Questions
 
-| Özellik | Flask | Streamlit | Gradio |
-|---------|-------|-----------|--------|
-| Kurulum Kolaylığı | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| Özelleştirme | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| Performans | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
-| Modern UI | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| Deployment | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+1) Battery status
+```
+"How can I check the battery status?"
+```
 
-## 💡 Örnek Kullanım
+2) GPRS settings
+```
+"How do I configure GPRS parameters?"
+```
 
-### Soru Örnekleri
+3) SMS notifications
+```
+"How can I set up SMS/call notifications?"
+```
 
-1. **Batarya Durumu**
-   ```
-   "Batarya durumunu nasıl kontrol ederim?"
-   ```
+4) Remote control
+```
+"How can I reboot the device remotely?"
+```
 
-2. **GPRS Ayarları**
-   ```
-   "GPRS parametrelerini nasıl ayarlarım?"
-   ```
+### Expected Answer Format
 
-3. **SMS Bildirimleri**
-   ```
-   "SMS/arama bildirimlerini nasıl yapılandırırım?"
-   ```
-
-4. **Uzaktan Kontrol**
-   ```
-   "Cihazı uzaktan nasıl yeniden başlatırım?"
-   ```
-
-### Yanıt Formatı
-
-AI asistanı yanıtları şu formatta verir:
+The assistant typically returns structured Markdown like:
 
 ```markdown
-## 📋 Komut Bilgisi
+## 📋 Command Info
 
-### 🔍 **Komut Adı:** [Komut adı]
-**Açıklama:** [Komut açıklaması]
+### 🔍 Command Name: [Name]
+Description: [Short description]
 
-### 📱 **SMS Formatı**
+### 📱 SMS Format
 ```
-[SMS komut formatı]
-```
-
-### 💡 **Kullanım Açıklaması**
-[Türkçe açıklama]
-
-### ⚙️ **Parametre Detayları**
-- **Parametre ID:** [ID]
-- **Parametre Tipi:** [Tip]
-- **Varsayılan Değer:** [Değer]
-
-### 📝 **Örnek Kullanım**
-```
-[Örnek SMS komutu]
-```
+[SMS command]
 ```
 
-## 🐳 Docker ile Çalıştırma
+### 💡 Usage Notes
+[Explanation]
+
+### ⚙️ Parameter Details
+- Parameter ID: [ID]
+- Type: [Type]
+- Default: [Value]
+
+### 📝 Example
+```
+[Example SMS]
+```
+```
+
+## 🐳 Run with Docker (Streamlit)
 
 ```bash
-# Docker image oluşturun
-docker build -t niki-fm130 .
+# Build image
+docker build -t niki-fmb130 .
 
-# Container'ı çalıştırın
-docker run -p 8501:8501 niki-fm130
+# Run container (exposes Streamlit at 8501)
+docker run -e OPENAI_API_KEY=your_openai_api_key_here -p 8501:8501 niki-fmb130
 ```
 
-## 🔍 Sorun Giderme
+## 🔍 Troubleshooting
 
-### Yaygın Hatalar
+1) “OPENAI_API_KEY not set”
+- Ensure `.env` exists and contains a valid key, or export it in your shell
 
-1. **"OPENAI_API_KEY not set"**
-   - `.env` dosyasında API key'in doğru ayarlandığından emin olun
+2) “Index not found”
+- Confirm your docs are under `data/`
+- Rebuild the index: `python rebuild_index.py`
 
-2. **"Vector index bulunamadı"**
-   - `data/` klasöründe referans dosyalarının olduğunu kontrol edin
-   - Vector index'i yeniden oluşturun
+3) Import or dependency errors
+- Verify your virtual environment is active
+- Reinstall deps: `pip install -r requirements.txt`
 
-3. **Import hataları**
-   - Virtual environment'ın aktif olduğundan emin olun
-   - `pip install -r requirements.txt` komutunu çalıştırın
+## 🤝 Contributing
 
-### Log Kontrolü
+1. Fork the repo
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m "Add amazing feature"`)
+4. Push the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-```bash
-# Flask uygulaması için
-python flask_app.py
+## 📄 License
 
-# Streamlit uygulaması için
-streamlit run main.py --server.port=8501
-```
+MIT License
 
-## 🤝 Katkıda Bulunma
+## 📞 Contact
 
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'Add amazing feature'`)
-4. Branch'inizi push edin (`git push origin feature/amazing-feature`)
-5. Pull Request oluşturun
-
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
-
-## 📞 İletişim
-
-- **Proje Sahibi:** [Adınız]
-- **Email:** [email@example.com]
-- **Proje Linki:** [https://github.com/username/wake_up_nikki](https://github.com/username/wake_up_nikki)
+- **Owner**: Sami Özsoy
+- **Email**: [your.email@example.com]
+- **Repo**: [`https://github.com/username/wake_up_nikki`](https://github.com/username/wake_up_nikki)
 
 ---
 
-**Not:** Bu proje FM130 cihazı komutları için eğitilmiş bir AI asistanıdır. Üretim ortamında kullanmadan önce gerekli testleri yapın. 
+Note: This project focuses on Teltonika FMB130 commands with a local RAG index. Validate responses and test carefully before production use.
